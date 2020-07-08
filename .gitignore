@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Local datas
+vision/config/yolov3-spp-ultralytics.pt
+vision/data
+vision/raw
+vision/videos
+vision/newlabels
