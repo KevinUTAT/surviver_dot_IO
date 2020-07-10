@@ -134,3 +134,8 @@ vision/data
 vision/raw
 vision/videos
 vision/newlabels
+vision/output
+vision/weights
+vision/results.txt
+*.mp4
+*.png

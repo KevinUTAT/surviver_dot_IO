@@ -7,6 +7,9 @@ The follwing implimentation is under GPL 3.0
 '''
 
 import argparse
+from PIL import ImageGrab
+import numpy as np
+import cv2
 from sys import platform
 
 from models import *  # set ONNX_EXPORT in models.py
@@ -18,6 +21,7 @@ def detect(save_img=False):
     img_size = (320, 192) if ONNX_EXPORT else opt.img_size  # (320, 192) or (416, 256) or (608, 352) for (height, width)
     out, source, weights, half, view_img, save_txt = opt.output, opt.source, opt.weights, opt.half, opt.view_img, opt.save_txt
     webcam = source == '0' or source.startswith('rtsp') or source.startswith('http') or source.endswith('.txt')
+    screen_cap = source == 'screen' or source == 'Screen'
 
     # Initialize
     device = torch_utils.select_device(device='cpu' if ONNX_EXPORT else opt.device)
@@ -69,10 +73,15 @@ def detect(save_img=False):
 
     # Set Dataloader
     vid_path, vid_writer = None, None
-    if webcam:
+    if webcam or screen_cap:
         view_img = True
         torch.backends.cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=img_size)
+    # elif screen_cap:
+    #     view_img = True
+    #     torch.backends.cudnn.benchmark = True
+
+        # dataset = LoadStreams(source, img_size=img_size)
     else:
         view_img = True
         torch.backends.cudnn.benchmark = False  # set True to speed up constant image size inference
@@ -106,7 +115,7 @@ def detect(save_img=False):
 
         # Process detections
         for i, det in enumerate(pred):  # detections per image
-            if webcam:  # batch_size >= 1
+            if webcam or screen_cap:  # batch_size >= 1
                 p, s, im0 = path[i], '%g: ' % i, im0s[i]
             else:
                 p, s, im0 = path, '', im0s
@@ -170,7 +179,7 @@ if __name__ == '__main__':
     parser.add_argument('--cfg', type=str, default='config/yolov3-spp.cfg', help='*.cfg path')
     parser.add_argument('--names', type=str, default='config/coco.names', help='*.names path')
     parser.add_argument('--weights', type=str, default='weights/best.pt', help='weights path')
-    parser.add_argument('--source', type=str, default='../Drone-Yolo/video/20200601_105508.mp4', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='videos/2020-07-07 21-23-58.mp4', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
