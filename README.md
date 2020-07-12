@@ -6,6 +6,13 @@ Small changes are made to the model to fit my project.\
 You can find the original model here: \
 https://github.com/roboflow-ai/yolov3  
 ## Change log
+### 2020-07-11:
+First attempt of auto firing. Not very good due to 0.5s lag, still very interesting to play. \
+Once you entered a game session, run:
+```
+cd vision
+python .\play_game.py --source screen
+```
 ### 2020-07-09: 
 Add screen capture into the model detection source. \
 The model originally accept still images, video files and \
