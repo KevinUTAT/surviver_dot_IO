@@ -1,6 +1,6 @@
 # surviver_dot_IO
 A "helper" to the surviv.io game \
-\
+![alt text](https://github.com/KevinUTAT/surviver_dot_IO/blob/master/Untitled.png?raw=true)
 The objects tracking model is a YOLOv3 implementation made by Ultralytics LLC \
 Small changes are made to the model to fit my project.\
 You can find the original model here: \
