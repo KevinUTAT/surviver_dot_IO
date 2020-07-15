@@ -74,14 +74,10 @@ def detect(opt, prediction, save_img=False):
     # Set Dataloader
     vid_path, vid_writer = None, None
     if webcam or screen_cap:
-        view_img = True
+        # view_img = True
         torch.backends.cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=img_size)
-    # elif screen_cap:
-    #     view_img = True
-    #     torch.backends.cudnn.benchmark = True
 
-        # dataset = LoadStreams(source, img_size=img_size)
     else:
         view_img = True
         torch.backends.cudnn.benchmark = False  # set True to speed up constant image size inference
@@ -136,6 +132,7 @@ def detect(opt, prediction, save_img=False):
                 for *xyxy, conf, cls in det:
                     c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
                     target = [int(cls), c1, c2, float(conf)]    # a single target predection
+                    print(target)
                     targets_out.append(target)      # add to the list
                     if save_txt:  # Write to file
                         with open(save_path + '.txt', 'a') as file:
