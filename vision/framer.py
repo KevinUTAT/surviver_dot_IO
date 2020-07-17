@@ -1,6 +1,6 @@
 import cv2
 
-VIDEO_SRC = "videos/2020-07-07 21-23-58.mp4"
+VIDEO_SRC = "videos/surviv.io - 2d battle royale game - Google Chrome 2020-07-14 21-27-29.mp4"
 
 def frames_slicer(video_dir, interval=15):
     vidcap = cv2.VideoCapture(video_dir)
@@ -22,4 +22,4 @@ def frames_slicer(video_dir, interval=15):
 
 
 if __name__ == '__main__': 
-    frames_slicer(VIDEO_SRC, 30)
+    frames_slicer(VIDEO_SRC, 15)

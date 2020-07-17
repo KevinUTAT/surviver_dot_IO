@@ -26,3 +26,8 @@ Import the model from the original author, \
 making minor changers for data set of class of 1 and \
 more agrassive learning rate because our target is going to be \
 man made carton objects.
+
+## Download pre-trained weights
+Weights trained on 500+ images, Not the best yet, but surely usable:
+https://drive.google.com/file/d/1OkCWemCXeNqlwOe54uWinOopuPGHRZKD/view?usp=sharing
+Put it under weights/

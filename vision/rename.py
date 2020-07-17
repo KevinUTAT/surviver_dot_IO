@@ -9,8 +9,7 @@ import re
 from numpy import random
 
 img_dir = "raw/"
-target_dir = "forboxing/0/"
-label_dir = "newlabels/0/"
+label_dir = "newlables/"
 data_label_dir = "data/sparrow_nsparrow/labels/correct/"
 
 
@@ -34,8 +33,8 @@ def rename_all():
 
 # used for renaming image-label pairs
 def back_ward_rename():
-    for count, filename in enumerate(os.listdir(target_dir)):
-        newname = rename(filename, target_dir)
+    for count, filename in enumerate(os.listdir(img_dir)):
+        newname = rename(filename, img_dir)
         
         new_name = newname.split('.')[0] + '.' + "txt"
         src = label_dir + filename.split('.')[0] + '.' + "txt"

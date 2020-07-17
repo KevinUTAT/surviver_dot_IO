@@ -10,6 +10,7 @@ import argparse
 from PIL import ImageGrab
 import numpy as np
 import cv2
+import queue
 from sys import platform
 
 from models import *  # set ONNX_EXPORT in models.py
@@ -182,7 +183,7 @@ if __name__ == '__main__':
     parser.add_argument('--cfg', type=str, default='config/yolov3-spp.cfg', help='*.cfg path')
     parser.add_argument('--names', type=str, default='config/coco.names', help='*.names path')
     parser.add_argument('--weights', type=str, default='weights/best.pt', help='weights path')
-    parser.add_argument('--source', type=str, default='videos/2020-07-07 21-23-58.mp4', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='videos/surviv.io - 2d battle royale game - Google Chrome 2020-07-07 21-22-35.mp4', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
