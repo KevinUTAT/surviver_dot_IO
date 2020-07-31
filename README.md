@@ -1,18 +1,26 @@
 # surviver_dot_IO
 A "helper" to the surviv.io game \
 ![alt text](https://github.com/KevinUTAT/surviver_dot_IO/blob/master/Untitled.png?raw=true)
-The objects tracking model is a YOLOv3 implementation made by Ultralytics LLC \
+This program auto fires at other players in game. \
+So far the AI is simple, the program will pick a player at random, and fires at the center location of it. \
+For now, the AI do not account for obstacles and the speed of witch plyers are moving. \
+\
+The objects tracking model is a YOLOv5 implementation made by Ultralytics LLC \
 Small changes are made to the model to fit my project.\
 You can find the original model here: \
-https://github.com/roboflow-ai/yolov3  
+[https://github.com/roboflow-ai/yolov3](https://github.com/ultralytics/yolov5)
 ## Change log
+### 2020-07-30:
+- Upgrating to YOLOv5
+- New screen capture mechanism (mss) \
+\
+With the two new upgrates, the program now is able to update aiming at about 5Hz (Tested on a RTX2070 Max-Q) \
+and shown to be enough for game play (idealy, 10Hz would be nice) \
+In my test, the program will still not get me to winning but it did scored several kil_ls ;)
 ### 2020-07-11:
 First attempt of auto firing. Not very good due to 0.5s lag, still very interesting to play. \
 Once you entered a game session, run:
-```
-cd vision
-python .\play_game.py --source screen
-```
+
 ### 2020-07-09: 
 Add screen capture into the model detection source. \
 The model originally accept still images, video files and \
@@ -31,3 +39,21 @@ man made carton objects.
 Weights trained on 500+ images, Not the best yet, but surely usable:
 https://drive.google.com/file/d/1OkCWemCXeNqlwOe54uWinOopuPGHRZKD/view?usp=sharing
 Put it under weights/
+
+## Instruction
+1. Clone the repo
+   ```
+   git clone https://github.com/KevinUTAT/surviver_dot_IO.git
+   ```
+2. Download weight file and put it under *weights*
+3. Install all the dependency by:
+   ```
+   pip install -r requirements.txt
+   ```
+   If get error due to lack of packge during run, please install them as my list might not cover it all. \
+   Reconmend using Conda
+4. Launch your game.
+5. Run the program:
+   ```
+   python play_game.py
+   ```
