@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+**__pycache__
 
 # C extensions
 *.so
@@ -128,6 +129,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# weight files
+*.pt
+
 # Local datas
 vision/config/yolov3-spp-ultralytics.pt
 vision/data
@@ -137,5 +141,7 @@ vision/newlabels
 vision/output
 vision/weights
 vision/results.txt
+vision/runs
+vision/inference
 *.mp4
 *.png
