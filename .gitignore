@@ -132,6 +132,9 @@ dmypy.json
 # weight files
 *.pt
 
+# vscode
+*.vscode
+
 # Local datas
 vision/config/yolov3-spp-ultralytics.pt
 vision/data

@@ -1,11 +1,18 @@
 import argparse
 import queue
+import copy
+import threading
 
 import torch.backends.cudnn as cudnn
 
 from models.experimental import *
 from utils.datasets import *
 from utils.utils import *
+
+global tracking_list
+tracking_list = []
+global tracking_list_cv
+tracking_list_cv = threading.Condition()
 
 
 def detect(opt, prediction, save_img=False):
@@ -93,12 +100,16 @@ def detect(opt, prediction, save_img=False):
                     s += '%g %ss, ' % (n, names[int(c)])  # add to string
 
                 targets_out = []
+                global tracking_list
+                global tracking_list_cv
+                tracking_list_cv.acquire()
+                tracking_list.clear()
                 # Write results
                 for *xyxy, conf, cls in det:
                     c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
                     target = [int(cls), c1, c2, float(conf)]    # a single target predection
                     print(target)
-                    targets_out.append(target)      # add to the list
+                    tracking_list.append(target)      # add to the list
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         with open(txt_path + '.txt', 'a') as f:
@@ -107,7 +118,11 @@ def detect(opt, prediction, save_img=False):
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
-                prediction.put(targets_out)
+                # prediction.put(targets_out)
+                
+                # tracking_list = copy.deepcopy(targets_out)
+                tracking_list_cv.notify_all()
+                tracking_list_cv.release()
 
             # Print time (inference + NMS)
             print('%sDone. (%.3fs)' % (s, t2 - t1))

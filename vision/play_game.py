@@ -6,27 +6,65 @@ import pyautogui
 from detect import *
 
 
-def game_ai(tracking_list):
-    center_screen = (pyautogui.size()[0]/2 , pyautogui.size()[1]/2)
-    pyautogui.FAILSAFE = False
-    while True:
-        while not tracking_list.empty():
-            i = 0
-            targets = tracking_list.get()
-            center_x = int((targets[i][1][0] + targets[i][2][0]) / 2)
-            center_y = int((targets[i][1][1] + targets[i][2][1]) / 2)
-            # Check the target to be yourself, if it is, move on to the next target
-            if (abs(center_screen[0] - center_x) + abs(center_screen[1] - center_y)) > 50 \
-                and targets[i][3] > 0.3: 
-                pyautogui.mouseDown(x=center_x, y=center_y)
-                time.sleep(0.01)
-                pyautogui.mouseUp()
-                # pyautogui.moveTo(x=center_x, y=center_y)
-                print("Firing at ", center_x, center_y)
-                break
+
+# def game_ai(tracking_list):
+#     center_screen = (pyautogui.size()[0]/2 , pyautogui.size()[1]/2)
+#     pyautogui.FAILSAFE = False
+#     while True:
+#         while not tracking_list.empty():
+#             i = 0
+#             targets = tracking_list.get()
+#             center_x = int((targets[i][1][0] + targets[i][2][0]) / 2)
+#             center_y = int((targets[i][1][1] + targets[i][2][1]) / 2)
+#             # Check the target to be yourself, if it is, move on to the next target
+#             if (abs(center_screen[0] - center_x) + abs(center_screen[1] - center_y)) > 50 \
+#                 and targets[i][3] > 0.3: 
+#                 pyautogui.mouseDown(x=center_x, y=center_y)
+#                 time.sleep(0.01)
+#                 pyautogui.mouseUp()
+#                 # pyautogui.moveTo(x=center_x, y=center_y)
+#                 print("Firing at ", center_x, center_y)
+#                 break
+#             else:
+#                 i += 1
+#         time.sleep(0.01)
+
+
+
+class Game_AI(threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+        self.center_screen = (pyautogui.size()[0]/2 , pyautogui.size()[1]/2)
+        pyautogui.FAILSAFE = False
+
+    def run(self):
+        global tracking_list
+        global tracking_list_cv
+        while True:
+            tracking_list_cv.acquire()
+            if tracking_list:       # if not empty
+                
+                for target in tracking_list:
+                    center_x = int((target[1][0] + target[2][0]) / 2)
+                    center_y = int((target[1][1] + target[2][1]) / 2)
+                    # Check the target to be yourself, if it is, move on to the next target
+                    if (abs(self.center_screen[0] - center_x) + abs(self.center_screen[1] - center_y)) > 50 \
+                        and target[3] > 0.3: 
+                        pyautogui.mouseDown(x=center_x, y=center_y)
+                        time.sleep(0.005)
+                        pyautogui.mouseUp()
+                        pyautogui.mouseDown(x=center_x, y=center_y)
+                        time.sleep(0.005)
+                        pyautogui.mouseUp()
+                        # pyautogui.moveTo(x=center_x, y=center_y)
+                        print("Firing at ", center_x, center_y)
+                        break
+                tracking_list.clear()
             else:
-                i += 1
-        time.sleep(0.01)
+                tracking_list_cv.wait()
+            tracking_list_cv.release()
+            # time.sleep(0.01)
 
 
 if __name__ == '__main__':
@@ -57,7 +95,9 @@ if __name__ == '__main__':
 
 
     trackings = queue.Queue()
-    ai_thread = threading.Thread(target=game_ai, args=(trackings,))
+    # ai_thread = threading.Thread(target=game_ai, args=(trackings,))
+    # ai_thread.start()
+    ai_thread = Game_AI("main ai")
     ai_thread.start()
     try:
         with torch.no_grad():

@@ -10,6 +10,9 @@ Small changes are made to the model to fit my project.\
 You can find the original model here: \
 [https://github.com/roboflow-ai/yolov3](https://github.com/ultralytics/yolov5)
 ## Change log
+### 2020-08-02:
+Main thread(target acquiring) and AI thread(firing) is now synced using a conditional variable. \
+This slightly improve the reaction time and fix the bug of AI thread being overwhelmed by amount of targets.
 ### 2020-07-30:
 - Upgrating to YOLOv5
 - New screen capture mechanism (mss) \
@@ -57,3 +60,4 @@ Put it under weights/
    ```
    python play_game.py
    ```
+tips: If you are experencing long reaction time (latency), try lower your display resolution. 
