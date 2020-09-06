@@ -1,3 +1,4 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 # surviver_dot_IO
 A "helper" to the surviv.io game \
 ![alt text](https://github.com/KevinUTAT/surviver_dot_IO/blob/master/Untitled.png?raw=true)
