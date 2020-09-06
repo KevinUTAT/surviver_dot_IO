@@ -8,11 +8,62 @@ import torch.backends.cudnn as cudnn
 from models.experimental import *
 from utils.datasets import *
 from utils.utils import *
+from sort import *
 
 global tracking_list
-tracking_list = []
+tracking_list = {}
 global tracking_list_cv
 tracking_list_cv = threading.Condition()
+
+
+class Player(object):
+    def __init__(self, tracking_id=-1):
+        self.tracking_id = tracking_id
+        self.conf = -1
+
+        self.x = -1
+        self.y = -1
+        self.w = -1
+        self.h = -1
+        self.r = -1
+        
+        self.time = time.time()
+        self.speed = 0
+
+        self.x_prev = -1
+        self.y_prev = -1
+        self.w_prev = -1
+        self.h_prev = -1
+
+        self.time_prev = time.time() - 1
+
+
+    def update(self, left, top, right, bottom):
+        self.x_prev = self.x
+        self.y_prev = self.y
+        self.w_prev = self.w
+        self.h_prev = self.h
+        self.time_prev = self.time
+
+        self.x = int((left + right)/2)
+        self.y = int((top + bottom)/2)
+        self.w = int(abs(right - left))
+        self.h = int(abs(bottom - top))
+        self.time = time.time()
+
+
+
+    
+    def __str__(self):
+        position_str = '(' + str(self.x) + ', ' + str(self.y) + ')'
+        size_str = '(' + str(self.w) + 'x' + str(self.h) + ')'
+        speed_str = str(self.speed) + 'pix/s'
+        return position_str + ' : ' + size_str + ' @' + speed_str
+    
+
+    def __repr__(self):
+        return self.__str__()
+    
 
 
 def detect(opt, prediction, save_img=False):
@@ -57,6 +108,7 @@ def detect(opt, prediction, save_img=False):
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(names))]
 
     # Run inference
+    moTrack = Sort()
     t0 = time.time()
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
@@ -79,6 +131,10 @@ def detect(opt, prediction, save_img=False):
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
 
+        # Apply motion tracker
+        if pred is not None:
+            tracked_objs = moTrack.update(pred)
+
         # Process detections
         for i, det in enumerate(pred):  # detections per image
             if webcam or screen_cap:  # batch_size >= 1
@@ -99,17 +155,34 @@ def detect(opt, prediction, save_img=False):
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += '%g %ss, ' % (n, names[int(c)])  # add to string
 
+                # output results
                 targets_out = []
                 global tracking_list
                 global tracking_list_cv
                 tracking_list_cv.acquire()
-                tracking_list.clear()
+                # tracking_list.clear()
+                # populate the tracking list
+                det_idx = 0
+                for *xyxy, conf, cls in det:
+                    if len(tracked_objs) > det_idx:
+                        current_track_id = tracked_objs[det_idx][4]
+                        # create a new player object if its tracking id is new
+                        if (current_track_id not in tracking_list):
+                            new_player = Player(current_track_id)
+                            new_player.update(xyxy[0], xyxy[1], xyxy[2], xyxy[3])
+                            tracking_list[current_track_id] = new_player
+                        # if its a existing id, update current object
+                        else:
+                            tracking_list[tracked_objs[det_idx][4]].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3])
+                    det_idx += 1
+
                 # Write results
+                det_idx = 0
                 for *xyxy, conf, cls in det:
                     c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
-                    target = [int(cls), c1, c2, float(conf)]    # a single target predection
-                    print(target)
-                    tracking_list.append(target)      # add to the list
+                    # target = [int(cls), c1, c2, float(conf)]    # a single target predection
+                    # print(target)
+                    # tracking_list.append(target)      # add to the list
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         with open(txt_path + '.txt', 'a') as f:
@@ -117,7 +190,14 @@ def detect(opt, prediction, save_img=False):
 
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
-                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+                        if len(tracked_objs) > det_idx:
+                            if opt.debug:
+                                plot_one_box(xyxy, im0, label=label, track_id=tracked_objs[det_idx][4], \
+                                    color=colors[int(cls)], line_thickness=1)
+                            plot_one_box(xyxy, im0, label=label, track_id=tracked_objs[det_idx][4], color=colors[int(cls)], line_thickness=1)
+                        else:
+                            plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+                    det_idx += 1
                 # prediction.put(targets_out)
                 
                 # tracking_list = copy.deepcopy(targets_out)
@@ -178,6 +258,7 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--update', action='store_true', help='update all models')
+    parser.add_argument('--debug', type=bool, default=False, help='add more info in image overlay')
     opt = parser.parse_args()
     print(opt)
 
