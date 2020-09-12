@@ -134,6 +134,12 @@ def detect(opt, prediction, save_img=False):
         # Apply motion tracker
         if pred is not None:
             tracked_objs = moTrack.update(pred)
+            # Note that tracked_objs here is in the reversed order of pred
+            # so we reverse it:
+            tracked_objs = tracked_objs[::-1] 
+            # if len(tracked_objs) >= 2:
+            #     print(pred)
+            #     print(tracked_objs)
 
         # Process detections
         for i, det in enumerate(pred):  # detections per image
@@ -173,7 +179,7 @@ def detect(opt, prediction, save_img=False):
                             tracking_list[current_track_id] = new_player
                         # if its a existing id, update current object
                         else:
-                            tracking_list[tracked_objs[det_idx][4]].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3])
+                            tracking_list[current_track_id].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3])
                     det_idx += 1
 
                 # Write results
