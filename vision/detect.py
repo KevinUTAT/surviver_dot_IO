@@ -131,15 +131,15 @@ def detect(opt, prediction, save_img=False):
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
 
-        # Apply motion tracker
-        if pred is not None:
-            tracked_objs = moTrack.update(pred)
-            # Note that tracked_objs here is in the reversed order of pred
-            # so we reverse it:
-            tracked_objs = tracked_objs[::-1] 
-            # if len(tracked_objs) >= 2:
-            #     print(pred)
-            #     print(tracked_objs)
+        # # Apply motion tracker
+        # if pred is not None:
+        #     tracked_objs = moTrack.update(pred)
+        #     # Note that tracked_objs here is in the reversed order of pred
+        #     # so we reverse it:
+        #     tracked_objs = tracked_objs[::-1] 
+        #     if len(tracked_objs) >= 2:
+        #         print(pred)
+        #         print(tracked_objs)
 
         # Process detections
         for i, det in enumerate(pred):  # detections per image
@@ -153,6 +153,26 @@ def detect(opt, prediction, save_img=False):
             s += '%gx%g ' % img.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
             if det is not None and len(det):
+                # apply motion tracker on each class
+                tracked_objs = moTrack.update(det)
+                # Note that tracked_objs here is in the reversed order of det
+                # so we need to reorder it to match det
+                det_idex = 0
+                ordered_tracked_objs = []
+                for *xyxy, conf, cls in det:
+                    match_found = False
+                    for tracked_obj in tracked_objs:
+                        x_match = (tracked_obj[0] - xyxy[0]) < 2
+                        y_match = (tracked_obj[1] - xyxy[1]) < 2
+                        if x_match and y_match:
+                            ordered_tracked_objs.append(tracked_obj)
+                            match_found = True
+                            continue
+                        else:
+                            match_found = False
+                    if not match_found:
+                        ordered_tracked_objs.append([0,0,0,0,-1])
+
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
@@ -170,8 +190,15 @@ def detect(opt, prediction, save_img=False):
                 # populate the tracking list
                 det_idx = 0
                 for *xyxy, conf, cls in det:
-                    if len(tracked_objs) > det_idx:
-                        current_track_id = tracked_objs[det_idx][4]
+                    if len(ordered_tracked_objs) > det_idx:
+                        # current_track_id = tracked_objs[det_idx][4]
+                        # current_track_id = -1
+                        # for tracked_obj in tracked_objs:
+                        #     x_match = (tracked_obj[0] - xyxy[0]) < 2
+                        #     y_match = (tracked_obj[1] - xyxy[1]) < 2
+                        #     if x_match and y_match:
+                        #         current_track_id = tracked_obj[4]
+                        current_track_id = ordered_tracked_objs[det_idx][4]
                         # create a new player object if its tracking id is new
                         if (current_track_id not in tracking_list):
                             new_player = Player(current_track_id)
@@ -185,7 +212,7 @@ def detect(opt, prediction, save_img=False):
                 # Write results
                 det_idx = 0
                 for *xyxy, conf, cls in det:
-                    c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
+                    # c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
                     # target = [int(cls), c1, c2, float(conf)]    # a single target predection
                     # print(target)
                     # tracking_list.append(target)      # add to the list
@@ -196,11 +223,23 @@ def detect(opt, prediction, save_img=False):
 
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
-                        if len(tracked_objs) > det_idx:
+                        if len(ordered_tracked_objs) > det_idx:
+                            # current_track_id = -1
+                            # for tracked_obj in tracked_objs:
+                            #     x_match = abs(tracked_obj[0] - int(xyxy[0])) < 2
+                            #     y_match = abs(tracked_obj[1] - int(xyxy[1])) < 2
+                            #     # print(tracked_obj[0], int(xyxy[0]))
+                            #     # print(tracked_obj[1], int(xyxy[1]))
+                            #     # print(xyxy)
+                            #     # print(tracked_obj)
+                            #     print(x_match, y_match)
+                            #     if x_match and y_match:
+                            #         current_track_id = tracked_obj[4]
+                            current_track_id = ordered_tracked_objs[det_idx][4]
                             if opt.debug:
-                                plot_one_box(xyxy, im0, label=label, track_id=tracked_objs[det_idx][4], \
+                                plot_one_box(xyxy, im0, label=label, track_id=current_track_id, \
                                     color=colors[int(cls)], line_thickness=1)
-                            plot_one_box(xyxy, im0, label=label, track_id=tracked_objs[det_idx][4], color=colors[int(cls)], line_thickness=1)
+                            plot_one_box(xyxy, im0, label=label, track_id=current_track_id, color=colors[int(cls)], line_thickness=1)
                         else:
                             plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
                     det_idx += 1

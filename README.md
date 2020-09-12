@@ -9,8 +9,16 @@ For now, the AI do not account for obstacles and the speed of witch plyers are m
 The objects tracking model is a YOLOv5 implementation made by Ultralytics LLC \
 Small changes are made to the model to fit my project.\
 You can find the original model here: \
-[https://github.com/roboflow-ai/yolov3](https://github.com/ultralytics/yolov5)
+https://github.com/ultralytics/yolov5
+
+SORT is used for target tracking, and its original repo is here: \
+https://github.com/abewley/sort
 ## Change log
+### 2020-09-12:
+Apply SORT real time tracker. \
+This allows targets to be identified across multiple frames. \
+This is important because now we know wehther a Player in this frame is the same player from last frame, \
+this allows us to calculate player's speed and heading later on and many other posibilities.
 ### 2020-08-02:
 Main thread(target acquiring) and AI thread(firing) is now synced using a conditional variable. \
 This slightly improve the reaction time and fix the bug of AI thread being overwhelmed by amount of targets.
