@@ -29,6 +29,10 @@ class Player(object):
         
         self.time = time.time()
         self.speed = 0
+        # x, y components of velocity
+        # Note the positive direction is down and right
+        self.velocity_vec_x = 0
+        self.velocity_vec_y = 0
 
         self.x_prev = -1
         self.y_prev = -1
@@ -50,6 +54,19 @@ class Player(object):
         self.w = int(abs(right - left))
         self.h = int(abs(bottom - top))
         self.time = time.time()
+
+        displacement = math.sqrt((self.x - self.x_prev) ** 2 + (self.y - self.y_prev) ** 2)
+        if float(self.time - self.time_prev) > 0:
+            self.speed = displacement / float(self.time - self.time_prev)
+            self.velocity_vec_x = (self.x - self.x_prev) / float(self.time - self.time_prev)
+            self.velocity_vec_y = (self.y - self.y_prev) / float(self.time - self.time_prev)
+        else:
+            self.speed = 0
+            self.velocity_vec_x = 0
+            self.velocity_vec_y = 0
+
+        self.velocity_vec_x = self.x - self.x_prev
+        self.velocity_vec_y = self.y - self.y_prev
 
 
 
@@ -238,7 +255,7 @@ def detect(opt, prediction, save_img=False):
                             current_track_id = ordered_tracked_objs[det_idx][4]
                             if opt.debug:
                                 plot_one_box(xyxy, im0, label=label, track_id=current_track_id, \
-                                    color=colors[int(cls)], line_thickness=1)
+                                    color=colors[int(cls)], line_thickness=1, speed=tracking_list[current_track_id].speed)
                             plot_one_box(xyxy, im0, label=label, track_id=current_track_id, color=colors[int(cls)], line_thickness=1)
                         else:
                             plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
