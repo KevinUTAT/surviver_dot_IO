@@ -19,7 +19,7 @@ tracking_list_cv = threading.Condition()
 class Player(object):
     def __init__(self, tracking_id=-1):
         self.tracking_id = tracking_id
-        self.conf = -1
+        self.conf = -1.0
 
         self.x = -1
         self.y = -1
@@ -42,7 +42,7 @@ class Player(object):
         self.time_prev = time.time() - 1
 
 
-    def update(self, left, top, right, bottom):
+    def update(self, left, top, right, bottom, conf):
         self.x_prev = self.x
         self.y_prev = self.y
         self.w_prev = self.w
@@ -53,6 +53,7 @@ class Player(object):
         self.y = int((top + bottom)/2)
         self.w = int(abs(right - left))
         self.h = int(abs(bottom - top))
+        self.conf = conf
         self.time = time.time()
 
         displacement = math.sqrt((self.x - self.x_prev) ** 2 + (self.y - self.y_prev) ** 2)
@@ -75,7 +76,7 @@ class Player(object):
         position_str = '(' + str(self.x) + ', ' + str(self.y) + ')'
         size_str = '(' + str(self.w) + 'x' + str(self.h) + ')'
         speed_str = str(self.speed) + 'pix/s'
-        return position_str + ' : ' + size_str + ' @' + speed_str
+        return position_str + ' : ' + size_str + ' @' + speed_str + 'conf:' + str(self.conf)
     
 
     def __repr__(self):
@@ -187,6 +188,7 @@ def detect(opt, prediction, save_img=False):
                             continue
                         else:
                             match_found = False
+                    # if SORT cannot track the object, assign id -1
                     if not match_found:
                         ordered_tracked_objs.append([0,0,0,0,-1])
 
@@ -219,11 +221,11 @@ def detect(opt, prediction, save_img=False):
                         # create a new player object if its tracking id is new
                         if (current_track_id not in tracking_list):
                             new_player = Player(current_track_id)
-                            new_player.update(xyxy[0], xyxy[1], xyxy[2], xyxy[3])
+                            new_player.update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf)
                             tracking_list[current_track_id] = new_player
                         # if its a existing id, update current object
                         else:
-                            tracking_list[current_track_id].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3])
+                            tracking_list[current_track_id].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf)
                     det_idx += 1
 
                 # Write results

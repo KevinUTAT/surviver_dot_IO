@@ -44,13 +44,13 @@ class Game_AI(threading.Thread):
         while True:
             tracking_list_cv.acquire()
             if tracking_list:       # if not empty
-                
-                for target in tracking_list:
-                    center_x = int((target[1][0] + target[2][0]) / 2)
-                    center_y = int((target[1][1] + target[2][1]) / 2)
+                # print(tracking_list)
+                for target in tracking_list.values():
+                    center_x = target.x
+                    center_y = target.y
                     # Check the target to be yourself, if it is, move on to the next target
                     if (abs(self.center_screen[0] - center_x) + abs(self.center_screen[1] - center_y)) > 50 \
-                        and target[3] > 0.3: 
+                        and target.conf > 0.3 and target.tracking_id != -1: 
                         pyautogui.mouseDown(x=center_x, y=center_y)
                         time.sleep(0.005)
                         pyautogui.mouseUp()
