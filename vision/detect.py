@@ -39,7 +39,7 @@ class Player(object):
         self.w_prev = -1
         self.h_prev = -1
 
-        self.time_prev = time.time() - 1
+        self.time_prev = time.time()
 
 
     def update(self, left, top, right, bottom, conf):
@@ -57,7 +57,9 @@ class Player(object):
         self.time = time.time()
 
         displacement = math.sqrt((self.x - self.x_prev) ** 2 + (self.y - self.y_prev) ** 2)
-        if float(self.time - self.time_prev) > 0:
+        if (float(self.time - self.time_prev) > 0) and \
+            self.x_prev != -1 and self.y_prev != -1:
+            # only if when a reasonable speed can be calculated, calculats it
             self.speed = displacement / float(self.time - self.time_prev)
             self.velocity_vec_x = (self.x - self.x_prev) / float(self.time - self.time_prev)
             self.velocity_vec_y = (self.y - self.y_prev) / float(self.time - self.time_prev)
@@ -66,9 +68,9 @@ class Player(object):
             self.velocity_vec_x = 0
             self.velocity_vec_y = 0
 
-        self.velocity_vec_x = self.x - self.x_prev
-        self.velocity_vec_y = self.y - self.y_prev
-
+        # self.velocity_vec_x = (self.x - self.x_prev) / float(self.time - self.time_prev)
+        # self.velocity_vec_y = (self.y - self.y_prev) / float(self.time - self.time_prev)
+ 
 
 
     
@@ -180,12 +182,12 @@ def detect(opt, prediction, save_img=False):
                 for *xyxy, conf, cls in det:
                     match_found = False
                     for tracked_obj in tracked_objs:
-                        x_match = (tracked_obj[0] - xyxy[0]) < 2
-                        y_match = (tracked_obj[1] - xyxy[1]) < 2
+                        x_match = (tracked_obj[0] - xyxy[0]) < 3
+                        y_match = (tracked_obj[1] - xyxy[1]) < 3
                         if x_match and y_match:
                             ordered_tracked_objs.append(tracked_obj)
                             match_found = True
-                            continue
+                            break
                         else:
                             match_found = False
                     # if SORT cannot track the object, assign id -1
@@ -257,7 +259,10 @@ def detect(opt, prediction, save_img=False):
                             current_track_id = ordered_tracked_objs[det_idx][4]
                             if opt.debug:
                                 plot_one_box(xyxy, im0, label=label, track_id=current_track_id, \
-                                    color=colors[int(cls)], line_thickness=1, speed=tracking_list[current_track_id].speed)
+                                    color=colors[int(cls)], line_thickness=1, \
+                                        speed=tracking_list[current_track_id].speed, \
+                                        velo_x=tracking_list[current_track_id].velocity_vec_x, \
+                                        velo_y=tracking_list[current_track_id].velocity_vec_y)
                             plot_one_box(xyxy, im0, label=label, track_id=current_track_id, color=colors[int(cls)], line_thickness=1)
                         else:
                             plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
@@ -309,7 +314,7 @@ def detect(opt, prediction, save_img=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='weights/best.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='videos/surviv.io - 2d battle royale game - Google Chrome 2020-07-14 21-27-29.mp4', help='source')  # file/folder, 0 for webcam ../Drone-Yolo/video/cuttingdata3.mp4
     parser.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
     parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')

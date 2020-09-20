@@ -69,7 +69,7 @@ class Game_AI(threading.Thread):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='weights/best.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='screen', help='source')  # file/folder, 0 for webcam ../Drone-Yolo/video/cuttingdata3.mp4
     parser.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
     parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')

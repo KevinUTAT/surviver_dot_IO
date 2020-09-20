@@ -950,7 +950,7 @@ def plot_one_box(x, img, color=None, label=None, track_id=None, line_thickness=N
             center_x = int((x[0] + x[2]) / 2)
             center_y = int((x[1] + x[3]) / 2)
             start = (center_x, center_y)
-            end = ((center_x + int(5*velo_x)), (center_y + int(5*velo_y)))
+            end = ((center_x + int(velo_x)), (center_y + int(velo_y)))
             print(start, end)
             img = cv2.arrowedLine(img, start, end, color, thickness=2*tf, line_type=cv2.LINE_AA)
 
