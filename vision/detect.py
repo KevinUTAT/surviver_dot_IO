@@ -41,8 +41,11 @@ class Player(object):
 
         self.time_prev = time.time()
 
+        self.interval = 0
+        self.interval_prev = 0
 
-    def update(self, left, top, right, bottom, conf):
+
+    def update(self, left, top, right, bottom, conf, time_stemp=0):
         self.x_prev = self.x
         self.y_prev = self.y
         self.w_prev = self.w
@@ -54,24 +57,41 @@ class Player(object):
         self.w = int(abs(right - left))
         self.h = int(abs(bottom - top))
         self.conf = conf
-        self.time = time.time()
+        if not time_stemp:
+            self.time = time.time()
+        else:
+            self.time = time_stemp
+
+        # filtering time inerval
+        self.interval_prev = self.interval
+        self.interval = float(self.time - self.time_prev)
+        # if (abs(self.interval - self.interval_prev) / self.interval_prev) > 1.5:
+        #     self.interval = self.interval_prev
 
         displacement = math.sqrt((self.x - self.x_prev) ** 2 + (self.y - self.y_prev) ** 2)
         if (float(self.time - self.time_prev) > 0) and \
             self.x_prev != -1 and self.y_prev != -1:
             # only if when a reasonable speed can be calculated, calculats it
-            self.speed = displacement / float(self.time - self.time_prev)
-            self.velocity_vec_x = (self.x - self.x_prev) / float(self.time - self.time_prev)
-            self.velocity_vec_y = (self.y - self.y_prev) / float(self.time - self.time_prev)
+            self.speed = displacement / self.interval
+            self.velocity_vec_x = (self.x - self.x_prev) / self.interval
+            self.velocity_vec_y = (self.y - self.y_prev) / self.interval
         else:
             self.speed = 0
             self.velocity_vec_x = 0
             self.velocity_vec_y = 0
 
+        print(self.interval)
+
         # self.velocity_vec_x = (self.x - self.x_prev) / float(self.time - self.time_prev)
         # self.velocity_vec_y = (self.y - self.y_prev) / float(self.time - self.time_prev)
  
 
+    # This return a projected position in the future of leading time
+    # it is simpelly current (position + velocity * leading time)
+    def position_projection(self, leading_time=0):
+        proj_x = self.x + self.velocity_vec_x * leading_time
+        proj_y = self.y + self.velocity_vec_y * leading_time
+        return proj_x, proj_y
 
     
     def __str__(self):
@@ -223,11 +243,11 @@ def detect(opt, prediction, save_img=False):
                         # create a new player object if its tracking id is new
                         if (current_track_id not in tracking_list):
                             new_player = Player(current_track_id)
-                            new_player.update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf)
+                            new_player.update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf, time_stemp=t2)
                             tracking_list[current_track_id] = new_player
                         # if its a existing id, update current object
                         else:
-                            tracking_list[current_track_id].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf)
+                            tracking_list[current_track_id].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf, time_stemp=t2)
                     det_idx += 1
 
                 # Write results

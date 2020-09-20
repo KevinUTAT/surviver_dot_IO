@@ -51,6 +51,8 @@ class Game_AI(threading.Thread):
                     # Check the target to be yourself, if it is, move on to the next target
                     if (abs(self.center_screen[0] - center_x) + abs(self.center_screen[1] - center_y)) > 50 \
                         and target.conf > 0.3 and target.tracking_id != -1: 
+                        # usin deflection
+                        center_x, center_y = target.position_projection(0.2)
                         pyautogui.mouseDown(x=center_x, y=center_y)
                         time.sleep(0.005)
                         pyautogui.mouseUp()

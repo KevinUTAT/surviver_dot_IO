@@ -14,6 +14,10 @@ https://github.com/ultralytics/yolov5
 SORT is used for target tracking, and its original repo is here: \
 https://github.com/abewley/sort
 ## Change log
+### 2020-09-20:
+Implementing defelctiong shooting: Leading the target if its moving relitively to you. \
+In my limited testing, it dose seems to improve accuracy. Becasue this will taking account \
+the time it takes for bullet to travel and more importantly, the resonse time of inferencing.
 ### 2020-09-12:
 Apply SORT real time tracker. \
 This allows targets to be identified across multiple frames. \
