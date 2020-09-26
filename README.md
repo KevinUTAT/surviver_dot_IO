@@ -1,7 +1,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 # surviver_dot_IO
 A "helper" to the surviv.io game \
-![alt text](https://github.com/KevinUTAT/surviver_dot_IO/blob/master/Untitled.png?raw=true)
+![alt text](https://github.com/KevinUTAT/surviver_dot_IO/blob/master/Annotation%202020-09-20%20133655.png?raw=true)
 This program auto fires at other players in game. \
 So far the AI is simple, the program will pick a player at random, and fires at the center location of it. \
 For now, the AI do not account for obstacles and the speed of witch plyers are moving. \
