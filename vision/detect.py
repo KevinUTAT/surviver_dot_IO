@@ -206,8 +206,8 @@ def detect(opt, prediction, save_img=False):
                 for *xyxy, conf, cls in det:
                     match_found = False
                     for tracked_obj in tracked_objs:
-                        x_match = (tracked_obj[0] - xyxy[0]) < 3
-                        y_match = (tracked_obj[1] - xyxy[1]) < 3
+                        x_match = abs(tracked_obj[0] - xyxy[0]) < 3
+                        y_match = abs(tracked_obj[1] - xyxy[1]) < 3
                         if x_match and y_match:
                             ordered_tracked_objs.append(tracked_obj)
                             match_found = True
