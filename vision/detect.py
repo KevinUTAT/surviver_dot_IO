@@ -4,12 +4,14 @@ import copy
 import threading
 
 import torch.backends.cudnn as cudnn
+import datetime
 
 from models.experimental import *
 from utils.datasets import *
 from utils.utils import *
 from sort import *
 
+active_output_dir = "active/images/"
 global tracking_list
 tracking_list = {}
 global tracking_list_cv
@@ -80,7 +82,7 @@ class Player(object):
             self.velocity_vec_x = 0
             self.velocity_vec_y = 0
 
-        print(self.interval)
+        # print(self.interval)
 
         # self.velocity_vec_x = (self.x - self.x_prev) / float(self.time - self.time_prev)
         # self.velocity_vec_y = (self.y - self.y_prev) / float(self.time - self.time_prev)
@@ -111,6 +113,8 @@ def detect(opt, prediction, save_img=False):
         opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
     webcam = source == '0' or source.startswith('rtsp') or source.startswith('http') or source.endswith('.txt')
     screen_cap = source == 'screen' or source == 'Screen'
+    active_learn = opt.active > 0.05
+    active_learn_thres = opt.active
 
     # Initialize
     device = torch_utils.select_device(opt.device)
@@ -248,6 +252,31 @@ def detect(opt, prediction, save_img=False):
                         # if its a existing id, update current object
                         else:
                             tracking_list[current_track_id].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf, time_stemp=t2)
+
+                    # On completly different note, while we are going through det,
+                    # we are going to out put unanotated img for training
+                    if active_learn: 
+                        outputedTheFrame = False
+                        if conf < active_learn_thres and conf >= 0.05 and not outputedTheFrame:
+                            # if object is moving slow (not moving) don't output
+                            # this reduce redundent frames output from stationary scene
+                            min_speed = im0.shape[0] / 10
+                            if (len(tracked_objs) > det_idx) and (current_track_id in tracking_list):
+                                if tracking_list[current_track_id].speed < min_speed:
+                                    det_idx += 1
+                                    continue
+
+                            timestemp = datetime.datetime.now()
+                            new_name = timestemp.strftime('%y') + timestemp.strftime('%j') \
+                                + timestemp.strftime('%H') + timestemp.strftime('%M') \
+                                + timestemp.strftime('%S') + timestemp.strftime('%f') \
+                                + '_' + str(tracking_list[current_track_id].x) + '-' \
+                                + str(tracking_list[current_track_id].y) + '-' \
+                                + str(int(conf)) + '.png'
+                            out_dir_name = active_output_dir + new_name
+                            cv2.imwrite(out_dir_name, im0)
+                            # so we don't out put the same frame more than once
+                            outputedTheFrame = True
                     det_idx += 1
 
                 # Write results
@@ -347,6 +376,7 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--update', action='store_true', help='update all models')
+    parser.add_argument('--active', type=float, default=0, help='out put threshold, enable active learning ouput when set to non zero')
     parser.add_argument('--debug', type=bool, default=False, help='add more info in image overlay')
     opt = parser.parse_args()
     print(opt)
