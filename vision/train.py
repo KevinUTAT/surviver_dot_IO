@@ -408,8 +408,8 @@ if __name__ == '__main__':
     parser.add_argument('--cfg', type=str, default='models/yolov5s.yaml', help='model.yaml path')
     parser.add_argument('--data', type=str, default='data/Dataset.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default='', help='hyp.yaml path (optional)')
-    parser.add_argument('--epochs', type=int, default=240)
-    parser.add_argument('--batch-size', type=int, default=4, help="Total batch size for all gpus.")
+    parser.add_argument('--epochs', type=int, default=550)
+    parser.add_argument('--batch-size', type=int, default=5, help="Total batch size for all gpus.")
     parser.add_argument('--img-size', nargs='+', type=int, default=[1024, 1024], help='train,test sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')
     parser.add_argument('--resume', nargs='?', const='get_last', default=False,
