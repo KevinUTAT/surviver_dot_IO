@@ -272,7 +272,7 @@ def detect(opt, prediction, save_img=False):
                                 + timestemp.strftime('%S') + timestemp.strftime('%f') \
                                 + '_' + str(tracking_list[current_track_id].x) + '-' \
                                 + str(tracking_list[current_track_id].y) + '-' \
-                                + str(int(conf)) + '.png'
+                                + str(float(conf)) + '.png'
                             out_dir_name = active_output_dir + new_name
                             cv2.imwrite(out_dir_name, im0)
                             # so we don't out put the same frame more than once
