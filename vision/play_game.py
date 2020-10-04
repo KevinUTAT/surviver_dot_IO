@@ -41,7 +41,8 @@ class Game_AI(threading.Thread):
     def run(self):
         global tracking_list
         global tracking_list_cv
-        while True:
+        global program_terminated
+        while not program_terminated:
             tracking_list_cv.acquire()
             if tracking_list:       # if not empty
                 # print(tracking_list)
@@ -84,6 +85,8 @@ if __name__ == '__main__':
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--update', action='store_true', help='update all models')
+    parser.add_argument('--active', type=float, default=0, help='out put threshold, enable active learning ouput when set to non zero')
+    parser.add_argument('--debug', type=bool, default=False, help='add more info in image overlay')
     opt = parser.parse_args()
     print(opt)
 
@@ -99,11 +102,14 @@ if __name__ == '__main__':
     trackings = queue.Queue()
     # ai_thread = threading.Thread(target=game_ai, args=(trackings,))
     # ai_thread.start()
+    program_terminated = False
     ai_thread = Game_AI("main ai")
     ai_thread.start()
     try:
         with torch.no_grad():
             detect(opt=opt, save_img=False, prediction=trackings)
+        program_terminated = True
         ai_thread.join()
     except:
+        program_terminated = True
         ai_thread.join()

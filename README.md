@@ -14,10 +14,13 @@ https://github.com/ultralytics/yolov5
 SORT is used for target tracking, and its original repo is here: \
 https://github.com/abewley/sort
 ## Change log
+### 2020-10-03:
+Auto termination. When a game round end (when the Battle Results are shown), the program will terminate. \
+Be sure to restart it if you are to play again.
 ### 2020-09-20:
-Implementing defelctiong shooting: Leading the target if its moving relitively to you. \
+Implementing defelcting shooting: Leading the target if it's moving relitive to you. \
 In my limited testing, it dose seems to improve accuracy. Becasue this will taking account \
-the time it takes for bullet to travel and more importantly, the resonse time of inferencing.
+the time it takes for bullet to travel and more importantly, the response time of inferencing.
 ### 2020-09-12:
 Apply SORT real time tracker. \
 This allows targets to be identified across multiple frames. \

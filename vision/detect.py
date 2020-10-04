@@ -204,6 +204,9 @@ def detect(opt, prediction, save_img=False):
                 det_idex = 0
                 ordered_tracked_objs = []
                 for *xyxy, conf, cls in det:
+                    # if the end screen is detected, end the program
+                    if int(cls) == 1 and conf > 0.8 and screen_cap:
+                        return
                     match_found = False
                     for tracked_obj in tracked_objs:
                         x_match = abs(tracked_obj[0] - xyxy[0]) < 3
