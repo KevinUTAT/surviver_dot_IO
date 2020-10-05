@@ -14,7 +14,7 @@
    <string>ActiveDataSet</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGraphicsView" name="graphicsView">
+   <widget class="QGraphicsView" name="dataViewer">
     <property name="geometry">
      <rect>
       <x>250</x>
