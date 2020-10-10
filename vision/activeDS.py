@@ -25,6 +25,7 @@ from PIL import Image
 
 IMG_FOLDER = "/images"
 IMG_EXT = 'png'
+LEBEL_FOLDER = "/labels"
 
 
 class Form(QObject):
@@ -104,6 +105,10 @@ class Form(QObject):
         self.viewerScene.addPixmap(img)
         self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.viewerScene.update()
+
+
+    # def load_bbox(self):
+
         
 
 

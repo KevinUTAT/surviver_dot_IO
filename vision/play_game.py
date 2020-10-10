@@ -42,9 +42,10 @@ class Game_AI(threading.Thread):
         global tracking_list
         global tracking_list_cv
         global program_terminated
+        shots_fired = False
         while not program_terminated:
             tracking_list_cv.acquire()
-            if tracking_list:       # if not empty
+            if tracking_list and not shots_fired:       # if not empty
                 # print(tracking_list)
                 for target in tracking_list.values():
                     center_x = target.x
@@ -63,11 +64,16 @@ class Game_AI(threading.Thread):
                         # pyautogui.moveTo(x=center_x, y=center_y)
                         print("Firing at ", center_x, center_y)
                         break
-                tracking_list.clear()
+                shots_fired = True
+                # tracking_list.clear()
             else:
                 tracking_list_cv.wait()
+                shots_fired = False
+                # print("wakeup")
+                # print(shots_fired)
             tracking_list_cv.release()
-            # time.sleep(0.01)
+            # else:
+            #     time.sleep(0.005)
 
 
 if __name__ == '__main__':

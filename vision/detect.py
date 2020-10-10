@@ -12,6 +12,8 @@ from utils.utils import *
 from sort import *
 
 active_output_dir = "active/images/"
+active_label_dir = "active/labels/"
+
 global tracking_list
 tracking_list = {}
 global tracking_list_cv
@@ -19,6 +21,8 @@ tracking_list_cv = threading.Condition()
 
 
 class Player(object):
+    class_num = 0
+
     def __init__(self, tracking_id=-1):
         self.tracking_id = tracking_id
         self.conf = -1.0
@@ -100,7 +104,8 @@ class Player(object):
         position_str = '(' + str(self.x) + ', ' + str(self.y) + ')'
         size_str = '(' + str(self.w) + 'x' + str(self.h) + ')'
         speed_str = str(self.speed) + 'pix/s'
-        return position_str + ' : ' + size_str + ' @' + speed_str + 'conf:' + str(self.conf)
+        return position_str + ' : ' + size_str + ' @' + speed_str \
+            + ' conf:' + str(int(float(self.conf)*100)) + '\n'
     
 
     def __repr__(self):
@@ -185,6 +190,13 @@ def detect(opt, prediction, save_img=False):
         #         print(pred)
         #         print(tracked_objs)
 
+        global tracking_list
+        global tracking_list_cv
+        # tracking_list_cv.acquire()
+        tracking_list.clear()
+        # tracking_list_cv.notify_all()
+        # tracking_list_cv.release()
+
         # Process detections
         for i, det in enumerate(pred):  # detections per image
             if webcam or screen_cap:  # batch_size >= 1
@@ -231,11 +243,12 @@ def detect(opt, prediction, save_img=False):
 
                 # output results
                 targets_out = []
-                global tracking_list
-                global tracking_list_cv
+                # global tracking_list
+                # global tracking_list_cv
                 tracking_list_cv.acquire()
                 # tracking_list.clear()
                 # populate the tracking list
+                active_frame = False
                 det_idx = 0
                 for *xyxy, conf, cls in det:
                     if len(ordered_tracked_objs) > det_idx:
@@ -259,28 +272,43 @@ def detect(opt, prediction, save_img=False):
                     # On completly different note, while we are going through det,
                     # we are going to out put unanotated img for training
                     if active_learn: 
-                        outputedTheFrame = False
-                        if conf < active_learn_thres and conf >= 0.05 and not outputedTheFrame:
+                        if conf < active_learn_thres and conf >= 0.05 and not active_frame:
                             # if object is moving slow (not moving) don't output
                             # this reduce redundent frames output from stationary scene
-                            min_speed = im0.shape[0] / 10
-                            if (len(tracked_objs) > det_idx) and (current_track_id in tracking_list):
-                                if tracking_list[current_track_id].speed < min_speed:
-                                    det_idx += 1
-                                    continue
-
+                            # min_speed = im0.shape[0] / 10
+                            # if (len(tracked_objs) > det_idx) and (current_track_id in tracking_list):
+                            #     if tracking_list[current_track_id].speed < min_speed:
+                            #         det_idx += 1
+                            #         continue
+                            
+                            active_frame =True
                             timestemp = datetime.datetime.now()
                             new_name = timestemp.strftime('%y') + timestemp.strftime('%j') \
                                 + timestemp.strftime('%H') + timestemp.strftime('%M') \
                                 + timestemp.strftime('%S') + timestemp.strftime('%f') \
-                                + '_' + str(tracking_list[current_track_id].x) + '-' \
-                                + str(tracking_list[current_track_id].y) + '-' \
-                                + str(int(float(conf)*100)) + '.png'
+                                + '_' + str(int(float(conf)*100)) + '.png'
                             out_dir_name = active_output_dir + new_name
                             cv2.imwrite(out_dir_name, im0)
-                            # so we don't out put the same frame more than once
-                            outputedTheFrame = True
                     det_idx += 1
+                # print(tracking_list)
+
+                # output ALL the targets for a active frame
+                if active_frame:
+                    imh = im0.shape[0]
+                    imw = im0.shape[1]
+                    with open(active_label_dir + new_name + '.txt', 'a+') as new_label:
+                        for target in tracking_list.values():
+                            new_label.write(str(target.class_num))  # write class
+                            new_label.write(' ')
+                            new_label.write(str(target.x/imw))   # write x
+                            new_label.write(' ')
+                            new_label.write(str(target.y/imh))   # write y
+                            new_label.write(' ')
+                            new_label.write(str(target.w/imw))   # write w
+                            new_label.write(' ')
+                            new_label.write(str(target.h/imh))   # write h
+                            new_label.write('\n')
+                    active_frame = False
 
                 # Write results
                 det_idx = 0
@@ -322,6 +350,9 @@ def detect(opt, prediction, save_img=False):
                 # prediction.put(targets_out)
                 
                 # tracking_list = copy.deepcopy(targets_out)
+                # global shots_fired
+                # shots_fired = False
+                # print("relealock")
                 tracking_list_cv.notify_all()
                 tracking_list_cv.release()
 
