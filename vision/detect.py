@@ -286,8 +286,8 @@ def detect(opt, prediction, save_img=False):
                             new_name = timestemp.strftime('%y') + timestemp.strftime('%j') \
                                 + timestemp.strftime('%H') + timestemp.strftime('%M') \
                                 + timestemp.strftime('%S') + timestemp.strftime('%f') \
-                                + '_' + str(int(float(conf)*100)) + '.png'
-                            out_dir_name = active_output_dir + new_name
+                                + '_' + str(int(float(conf)*100))
+                            out_dir_name = active_output_dir + new_name + '.png'
                             cv2.imwrite(out_dir_name, im0)
                     det_idx += 1
                 # print(tracking_list)

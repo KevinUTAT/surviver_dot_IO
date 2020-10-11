@@ -21,11 +21,14 @@ from PySide2.QtCore import QFile, QObject, QRectF, Qt
 from PySide2.QtGui import (QIcon, QPixmap, QImage)
 
 from PIL import Image
+from bbox import BBox
 
 
 IMG_FOLDER = "/images"
 IMG_EXT = 'png'
 LEBEL_FOLDER = "/labels"
+
+label_table = {}
 
 
 class Form(QObject):
@@ -59,9 +62,6 @@ class Form(QObject):
         self.viewerView = self.window.findChild(QGraphicsView, 'dataViewer')
         self.viewerView.setScene(self.viewerScene)
 
-        # The foolwing enable custom style sheet
-        # self.window.setAttribute(PySide2.QtCore.Qt.WA_StyledBackground)
-        # self.window.setStyleSheet(open('app.qss').read())
         self.window.show()
 
 
@@ -87,11 +87,33 @@ class Form(QObject):
                 w, h = img.size
                 img = img.resize((int(w/20), int(h/20)))
                 img = img.convert("RGBA")
-                qimg = QImage(img.tobytes('raw', 'RGBA'), img.size[0], img.size[1], QImage.Format_RGBA8888)
+                qimg = QImage(img.tobytes('raw', 'RGBA'), img.size[0], \
+                    img.size[1], QImage.Format_RGBA8888)
                 thumbnail = QIcon()
                 thumbnail.addPixmap(QtGui.QPixmap.fromImage(qimg))
                 newItem.setIcon(thumbnail)
 
+                label_dir = self.current_data_dir + LEBEL_FOLDER \
+                    + '/' + dataName + '.txt'
+                if os.path.exists(label_dir):
+                    with open(label_dir, 'r') as label_file:
+                        bboxs = []
+                        for line in label_file:
+                            bbox_l = line.split()
+                            class_num = int(bbox_l[0])
+                            centerX = int(float(bbox_l[1]) * w)
+                            centerY = int(float(bbox_l[2]) * h)
+                            width = int(float(bbox_l[3]) * w)
+                            height = int(float(bbox_l[4]) * h)
+                            new_bbox = BBox([centerX, centerY, width, height],\
+                                 class_num)
+                            bboxs.append(new_bbox)
+
+                        label_table[dataName] = bboxs
+                else:
+                    print("Cannot find label: " + \
+                        label_dir)
+            
             self.dataList.addItem(newItem)
 
 
@@ -103,6 +125,8 @@ class Form(QObject):
         img = QPixmap(img_dir)
         w, h = img.size().toTuple()
         self.viewerScene.addPixmap(img)
+        for one_box in label_table[data_name]:
+            one_box.drew_in_scene(self.viewerScene)
         self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.viewerScene.update()
 

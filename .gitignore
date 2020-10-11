@@ -146,6 +146,7 @@ vision/weights
 vision/results.txt
 vision/runs
 vision/inference
-vision/active
+vision/active/images
+vision/active/labels
 *.mp4
 *.png
