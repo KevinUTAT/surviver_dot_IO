@@ -14,6 +14,12 @@ https://github.com/ultralytics/yolov5
 SORT is used for target tracking, and its original repo is here: \
 https://github.com/abewley/sort
 ## Change log
+### 2020-10-11:
+Major cleaning up in tracking data structure *tracking_list*:
+- *tracking_list* is updated every frame
+- Only the vision thread (Main thread) modify it
+- Synced with AI thread so AI thread only run when the list is updated with all the targets in a frame through a CV
+- The list is cleaned every frame so it only contains active targets of the frame
 ### 2020-10-03:
 Auto termination. When a game round end (when the Battle Results are shown), the program will terminate. \
 Be sure to restart it if you are to play again.

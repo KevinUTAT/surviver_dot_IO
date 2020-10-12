@@ -50,6 +50,9 @@ class Player(object):
         self.interval = 0
         self.interval_prev = 0
 
+        # tracking how long have the Player being inactivate
+        self.obsolete = 0
+
 
     def update(self, left, top, right, bottom, conf, time_stemp=0):
         self.x_prev = self.x
@@ -86,6 +89,8 @@ class Player(object):
             self.velocity_vec_x = 0
             self.velocity_vec_y = 0
 
+        self.obsolete = 0
+
         # print(self.interval)
 
         # self.velocity_vec_x = (self.x - self.x_prev) / float(self.time - self.time_prev)
@@ -110,6 +115,22 @@ class Player(object):
 
     def __repr__(self):
         return self.__str__()
+
+
+def age_traking_list():
+    # age all players by 1
+    for target in tracking_list.values():
+        target.obsolete += 1
+
+
+def clean_traking_list():
+    # remove players that is inactive
+    obsoletes = []
+    for track_id, target in tracking_list.items():
+        if target.obsolete or target.tracking_id == -1:
+            obsoletes.append(track_id)
+    for tid in obsoletes:
+        del tracking_list[tid]
     
 
 
@@ -193,7 +214,9 @@ def detect(opt, prediction, save_img=False):
         global tracking_list
         global tracking_list_cv
         # tracking_list_cv.acquire()
-        tracking_list.clear()
+        # tracking_list.clear()
+        clean_traking_list()
+        age_traking_list()
         # tracking_list_cv.notify_all()
         # tracking_list_cv.release()
 
@@ -347,12 +370,12 @@ def detect(opt, prediction, save_img=False):
                         else:
                             plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
                     det_idx += 1
-                # prediction.put(targets_out)
                 
                 # tracking_list = copy.deepcopy(targets_out)
                 # global shots_fired
                 # shots_fired = False
                 # print("relealock")
+                print(tracking_list)
                 tracking_list_cv.notify_all()
                 tracking_list_cv.release()
 
