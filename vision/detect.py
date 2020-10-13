@@ -375,7 +375,7 @@ def detect(opt, prediction, save_img=False):
                 # global shots_fired
                 # shots_fired = False
                 # print("relealock")
-                print(tracking_list)
+                # print(tracking_list)
                 tracking_list_cv.notify_all()
                 tracking_list_cv.release()
 

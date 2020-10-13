@@ -34,6 +34,16 @@
      </rect>
     </property>
    </widget>
+   <widget class="QListWidget" name="targetList">
+    <property name="geometry">
+     <rect>
+      <x>1150</x>
+      <y>10</y>
+      <width>151</width>
+      <height>361</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

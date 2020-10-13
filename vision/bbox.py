@@ -19,20 +19,28 @@ class BBox(object):
         self.cls = class_num
 
 
-    def drew_in_scene(self, scene_ref):
+    def drew_in_scene(self, scene_ref, highlight=False):
         # pass in a reference to the sence
         # then this function will drew on the scene
         blueBrush = QBrush(PySide2.QtCore.Qt.blue)
         bluePen = QPen(PySide2.QtCore.Qt.blue)
+        highlightPen = QPen(PySide2.QtCore.Qt.blue)
+        highlightPen.setWidth(5)
 
         tl = scene_ref.addRect(self.left-5, self.top-5, 10,10, brush=blueBrush)
         tr = scene_ref.addRect(self.right-5, self.top-5, 10,10, brush=blueBrush)
         bl = scene_ref.addRect(self.left-5, self.bottom-5, 10,10, brush=blueBrush)
         br = scene_ref.addRect(self.right-5, self.bottom-5, 10,10, brush=blueBrush)
 
-        top_line    = scene_ref.addLine(self.left, self.top, self.right, self.top, pen=bluePen)
-        bottom_line = scene_ref.addLine(self.left, self.bottom, self.right, self.bottom, pen=bluePen)
-        left_line   = scene_ref.addLine(self.left, self.top, self.left, self.bottom, pen=bluePen)
-        right_line  = scene_ref.addLine(self.right, self.top, self.right, self.bottom, pen=bluePen)
+        if highlight:
+            top_line    = scene_ref.addLine(self.left, self.top, self.right, self.top, pen=highlightPen)
+            bottom_line = scene_ref.addLine(self.left, self.bottom, self.right, self.bottom, pen=highlightPen)
+            left_line   = scene_ref.addLine(self.left, self.top, self.left, self.bottom, pen=highlightPen)
+            right_line  = scene_ref.addLine(self.right, self.top, self.right, self.bottom, pen=highlightPen)
+        else:
+            top_line    = scene_ref.addLine(self.left, self.top, self.right, self.top, pen=bluePen)
+            bottom_line = scene_ref.addLine(self.left, self.bottom, self.right, self.bottom, pen=bluePen)
+            left_line   = scene_ref.addLine(self.left, self.top, self.left, self.bottom, pen=bluePen)
+            right_line  = scene_ref.addLine(self.right, self.top, self.right, self.bottom, pen=bluePen)
 
 

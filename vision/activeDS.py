@@ -62,6 +62,11 @@ class Form(QObject):
         self.viewerView = self.window.findChild(QGraphicsView, 'dataViewer')
         self.viewerView.setScene(self.viewerScene)
 
+        # Targets list ==================================================
+        self.targetList = \
+            self.window.findChild(QListWidget, 'targetList')
+        self.targetList.itemSelectionChanged.connect(self.hightlight_target)
+
         self.window.show()
 
 
@@ -77,6 +82,7 @@ class Form(QObject):
         
 
     def load_dataList(self, nameList ,showThumbnail=True):
+        self.dataList.clear()
         for dataName in nameList:
             newItem = QtWidgets.QListWidgetItem(dataName)
             
@@ -93,6 +99,7 @@ class Form(QObject):
                 thumbnail.addPixmap(QtGui.QPixmap.fromImage(qimg))
                 newItem.setIcon(thumbnail)
 
+                # pre load all the labels
                 label_dir = self.current_data_dir + LEBEL_FOLDER \
                     + '/' + dataName + '.txt'
                 if os.path.exists(label_dir):
@@ -117,7 +124,7 @@ class Form(QObject):
             self.dataList.addItem(newItem)
 
 
-    def load_viewer(self):
+    def load_viewer(self, highlight=-1):
         self.viewerScene.clear()
         data_name = str(self.dataList.currentItem().text())
         img_dir = self.current_data_dir + IMG_FOLDER \
@@ -125,10 +132,42 @@ class Form(QObject):
         img = QPixmap(img_dir)
         w, h = img.size().toTuple()
         self.viewerScene.addPixmap(img)
-        for one_box in label_table[data_name]:
-            one_box.drew_in_scene(self.viewerScene)
+        self.targetList.clear()
+        for i, one_box in enumerate(label_table[data_name]):
+            if highlight == i:
+                one_box.drew_in_scene(self.viewerScene, highlight=True)
+            else:
+                one_box.drew_in_scene(self.viewerScene)
+            
+            newItem = QtWidgets.QListWidgetItem(str(one_box.cls))
+            self.targetList.addItem(newItem)
         self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.viewerScene.update()
+
+
+    def reload_viewer(self, highlight=-1):
+        # Same as load_viewer but without loading the target list
+        self.viewerScene.clear()
+        data_name = str(self.dataList.currentItem().text())
+        img_dir = self.current_data_dir + IMG_FOLDER \
+            + '/' + data_name + '.' + IMG_EXT
+        img = QPixmap(img_dir)
+        w, h = img.size().toTuple()
+        self.viewerScene.addPixmap(img)
+        for i, one_box in enumerate(label_table[data_name]):
+            if highlight == i:
+                one_box.drew_in_scene(self.viewerScene, highlight=True)
+            else:
+                one_box.drew_in_scene(self.viewerScene)
+        self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+        self.viewerScene.update()
+
+
+    def hightlight_target(self):
+        target_idx = self.targetList.currentRow()
+        # print(target_idx)
+        self.reload_viewer(target_idx)
+
 
 
     # def load_bbox(self):
