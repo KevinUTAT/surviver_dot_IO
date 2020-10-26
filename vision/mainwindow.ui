@@ -44,6 +44,32 @@
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="rmTargetButton">
+    <property name="geometry">
+     <rect>
+      <x>1150</x>
+      <y>380</y>
+      <width>71</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remove</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="undoButton">
+    <property name="geometry">
+     <rect>
+      <x>1230</x>
+      <y>380</y>
+      <width>71</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Undo</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -60,12 +86,24 @@
     </property>
     <addaction name="loadAOAction"/>
    </widget>
+   <widget class="QMenu" name="menuSave">
+    <property name="title">
+     <string>Save</string>
+    </property>
+    <addaction name="actionTarget_Modifications"/>
+   </widget>
    <addaction name="menuLoad"/>
+   <addaction name="menuSave"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="loadAOAction">
    <property name="text">
     <string>Active Learning outputs</string>
+   </property>
+  </action>
+  <action name="actionTarget_Modifications">
+   <property name="text">
+    <string>Target Modifications</string>
    </property>
   </action>
  </widget>

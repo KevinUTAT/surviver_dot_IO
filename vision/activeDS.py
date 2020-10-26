@@ -30,6 +30,10 @@ LEBEL_FOLDER = "/labels"
 
 label_table = {}
 
+# A modification is a array of [data_name, target_idx, new_data]
+# to delete a target, set new_data to ''
+modification_list = []
+
 
 class Form(QObject):
     
@@ -50,6 +54,10 @@ class Form(QObject):
         self.window.findChild(QAction, 'loadAOAction').\
             triggered.connect(self.load_adc)
 
+        # load save target mod action
+        self.window.findChild(QAction, 'actionTarget_Modifications').\
+            triggered.connect(self.save_mods)
+
         # Data list =====================================================
         self.dataList = \
             self.window.findChild(QListWidget, 'dataList')
@@ -66,6 +74,13 @@ class Form(QObject):
         self.targetList = \
             self.window.findChild(QListWidget, 'targetList')
         self.targetList.itemSelectionChanged.connect(self.hightlight_target)
+        self.rmTargetButton = \
+            self.window.findChild(QPushButton, 'rmTargetButton')
+        self.undoButton = \
+            self.window.findChild(QPushButton, 'undoButton')
+        self.rmTargetButton.setEnabled(False)
+        self.rmTargetButton.clicked.connect(self.remove_target)
+        self.targetList_modified = False
 
         self.window.show()
 
@@ -132,7 +147,12 @@ class Form(QObject):
         img = QPixmap(img_dir)
         w, h = img.size().toTuple()
         self.viewerScene.addPixmap(img)
+
+        # reinitialize the target list
         self.targetList.clear()
+        self.rmTargetButton.setEnabled(False)
+        self.targetList_modified = False
+
         for i, one_box in enumerate(label_table[data_name]):
             if highlight == i:
                 one_box.drew_in_scene(self.viewerScene, highlight=True)
@@ -167,6 +187,43 @@ class Form(QObject):
         target_idx = self.targetList.currentRow()
         # print(target_idx)
         self.reload_viewer(target_idx)
+
+        self.rmTargetButton.setEnabled(True)
+
+
+    def remove_target(self):
+        target2rm_idx = self.targetList.currentRow()
+        data_name = str(self.dataList.currentItem().text())
+        new_bboxs = []
+        for i, one_box in enumerate(label_table[data_name]):
+            if i != target2rm_idx:
+                new_bboxs.append(one_box)
+        label_table[data_name] = new_bboxs
+
+        # record modification
+        mod = [data_name, target2rm_idx, '']
+        modification_list.append(mod)
+
+        self.load_viewer()
+
+
+    def save_mods(self):
+        for mod in modification_list:
+            label_dir = self.current_data_dir + LEBEL_FOLDER \
+                    + '/' + mod[0] + '.txt'
+            with open(label_dir, 'r') as label_file:
+                lines = label_file.readlines()
+            if mod[2] == '':
+                del lines[mod[1]]
+            else:
+                lines[mod[1]] = mod[2]
+
+            with open(label_dir, 'w') as label_file:
+                label_file.writelines(lines)
+        modification_list.clear()
+
+
+
 
 
 
