@@ -16,7 +16,8 @@ from PySide2.QtWidgets import (QApplication, QPushButton,
                             QLineEdit, QPlainTextEdit, QComboBox, 
                             QCheckBox, QAction, QFileDialog, 
                             QMessageBox, QInputDialog, QListWidget, 
-                            QListView, QGraphicsScene, QGraphicsView)
+                            QListView, QGraphicsScene, QGraphicsView, 
+                            QProgressDialog)
 from PySide2.QtCore import QFile, QObject, QRectF, Qt
 from PySide2.QtGui import (QIcon, QPixmap, QImage)
 
@@ -99,9 +100,13 @@ class Form(QObject):
         self.load_dataList(name_list)
         
 
-    def load_dataList(self, nameList ,showThumbnail=True):
+    def load_dataList(self, nameList ,showThumbnail=True, progressBar=True):
         self.dataList.clear()
-        for dataName in nameList:
+        if progressBar:
+            progress = QProgressDialog("Loading data...", "Abort", \
+                0, len(nameList), self.window)
+            progress.setWindowModality(Qt.WindowModal)
+        for i, dataName in enumerate(nameList):
             newItem = QtWidgets.QListWidgetItem(dataName)
             
             if showThumbnail:
@@ -117,29 +122,35 @@ class Form(QObject):
                 thumbnail.addPixmap(QtGui.QPixmap.fromImage(qimg))
                 newItem.setIcon(thumbnail)
 
-                # pre load all the labels
-                label_dir = self.current_data_dir + LEBEL_FOLDER \
-                    + '/' + dataName + '.txt'
-                if os.path.exists(label_dir):
-                    with open(label_dir, 'r') as label_file:
-                        bboxs = []
-                        for line in label_file:
-                            bbox_l = line.split()
-                            class_num = int(bbox_l[0])
-                            centerX = int(float(bbox_l[1]) * w)
-                            centerY = int(float(bbox_l[2]) * h)
-                            width = int(float(bbox_l[3]) * w)
-                            height = int(float(bbox_l[4]) * h)
-                            new_bbox = BBox([centerX, centerY, width, height],\
-                                 class_num)
-                            bboxs.append(new_bbox)
+            # pre load all the labels
+            label_dir = self.current_data_dir + LEBEL_FOLDER \
+                + '/' + dataName + '.txt'
+            if os.path.exists(label_dir):
+                with open(label_dir, 'r') as label_file:
+                    bboxs = []
+                    for line in label_file:
+                        bbox_l = line.split()
+                        class_num = int(bbox_l[0])
+                        centerX = int(float(bbox_l[1]) * w)
+                        centerY = int(float(bbox_l[2]) * h)
+                        width = int(float(bbox_l[3]) * w)
+                        height = int(float(bbox_l[4]) * h)
+                        new_bbox = BBox([centerX, centerY, width, height],\
+                                class_num)
+                        bboxs.append(new_bbox)
 
-                        label_table[dataName] = bboxs
-                else:
-                    print("Cannot find label: " + \
-                        label_dir)
+                    label_table[dataName] = bboxs
+            else:
+                print("Cannot find label: " + \
+                    label_dir)
             
             self.dataList.addItem(newItem)
+            if progressBar:
+                progress.setValue(i)
+                if progress.wasCanceled():
+                    break
+        if progressBar:
+                progress.setValue(len(nameList))
 
 
     def load_viewer(self, highlight=-1):
