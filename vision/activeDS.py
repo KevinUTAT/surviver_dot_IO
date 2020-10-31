@@ -30,8 +30,9 @@ LEBEL_FOLDER = "/labels"
 
 label_table = {}
 
-# A modification is a array of [data_name, target_idx, new_data]
+# A modification is a array of [data_name, target_idx, new_data, old_data]
 # to delete a target, set new_data to ''
+# Old data is used to undo changes
 modification_list = []
 
 
@@ -79,8 +80,10 @@ class Form(QObject):
         self.undoButton = \
             self.window.findChild(QPushButton, 'undoButton')
         self.rmTargetButton.setEnabled(False)
+        self.undoButton.setEnabled(False)
         self.rmTargetButton.clicked.connect(self.remove_target)
         self.targetList_modified = False
+        self.undoButton.clicked.connect(self.undo_mod)
 
         self.window.show()
 
@@ -194,17 +197,41 @@ class Form(QObject):
     def remove_target(self):
         target2rm_idx = self.targetList.currentRow()
         data_name = str(self.dataList.currentItem().text())
+        # delete one bbox from label_table[data_name]
         new_bboxs = []
         for i, one_box in enumerate(label_table[data_name]):
             if i != target2rm_idx:
                 new_bboxs.append(one_box)
+            else:
+                del_box = one_box
         label_table[data_name] = new_bboxs
 
         # record modification
-        mod = [data_name, target2rm_idx, '']
+        mod = [data_name, target2rm_idx, '', del_box]
         modification_list.append(mod)
 
+        self.undoButton.setEnabled(True)
         self.load_viewer()
+
+
+    def undo_mod(self):
+        last_mod = modification_list[-1]
+        data_name = last_mod[0]
+        tar_idx = last_mod[1]
+        # insert old bbox back if deleted
+        # else just restore old bbox
+        if last_mod[2] == '':
+            label_table[data_name].insert(tar_idx, last_mod[3])
+        else:
+            label_table[data_name][tar_idx] = last_mod[3]
+
+        # then remove this modification form mod list
+        del modification_list[-1]
+
+        if len(modification_list) == 0:
+            self.undoButton.setEnabled(False)
+        self.load_viewer()
+        
 
 
     def save_mods(self):
