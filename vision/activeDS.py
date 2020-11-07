@@ -25,6 +25,7 @@ from PIL import Image
 from bbox import BBox
 from dataScene import DataScene
 from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBEL_FOLDER
+import train_val_spliter
 
 
 class Form(QObject):
@@ -49,6 +50,11 @@ class Form(QObject):
         # load save target mod action
         self.window.findChild(QAction, 'actionTarget_Modifications').\
             triggered.connect(self.save_mods)
+
+        # Tools -----------
+        # data spliter
+        self.window.findChild(QAction, 'actionData_spliter').\
+            triggered.connect(self.run_spliter)
 
         # Data list =====================================================
         self.dataList = \
@@ -82,6 +88,13 @@ class Form(QObject):
     # Load active data set
     def load_adc(self):
         self.adc_folder_dir = QFileDialog.getExistingDirectory()
+        if (not os.path.exists(self.adc_folder_dir + IMG_FOLDER)) \
+            or (not os.path.exists(self.adc_folder_dir + LEBEL_FOLDER)):
+            self.error_msg("Cannot find proper data in " + self.adc_folder_dir \
+                + '\n' + "A proper data folder should have subfolders: " \
+                + IMG_FOLDER + " and " + LEBEL_FOLDER)
+            self.adc_folder_dir = ""
+            return
         name_list = []
         for imgName in os.listdir(self.adc_folder_dir + IMG_FOLDER):
             dataName = imgName.split('.')[0] # remove extension
@@ -177,7 +190,7 @@ class Form(QObject):
     def reload_viewer(self, highlight=-1):
         # # Same as load_viewer but without loading the target list
         # self.viewerScene.clear()
-        data_name = str(self.dataList.currentItem().text())
+        # data_name = str(self.dataList.currentItem().text())
         # img_dir = self.current_data_dir + IMG_FOLDER \
         #     + '/' + data_name + '.' + IMG_EXT
         # img = QPixmap(img_dir)
@@ -257,6 +270,37 @@ class Form(QObject):
         modification_list.clear()
 
 
+    def run_spliter(self):
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Information)
+        msgBox.setText("The spliter will divide datas "\
+             "into training set and validation set")
+        msgBox.setStandardButtons(QMessageBox.Ok)
+        msgBox.addButton(QMessageBox.Cancel)
+        msgBox.setDefaultButton(QMessageBox.Ok)
+        ret = msgBox.exec()
+        if ret == QMessageBox.Ok:
+            train_val_spliter.train_val_split()
+        else:
+            return
+
+
+    def error_msg(self, error_msg):
+        error_window = QMessageBox()
+        error_window.setIcon(QMessageBox.Critical)
+        error_window.setText(error_msg)
+        error_window.setWindowTitle("Error")
+        error_window.setStandardButtons(QMessageBox.Ok)
+        error_window.exec_()
+
+
+    def warn_msg(self, error_msg):
+        error_window = QMessageBox()
+        error_window.setIcon(QMessageBox.Warning)
+        error_window.setText(error_msg)
+        error_window.setWindowTitle("Warning")
+        error_window.setStandardButtons(QMessageBox.Ok)
+        error_window.exec_()
 
 
 

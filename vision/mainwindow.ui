@@ -92,8 +92,15 @@
     </property>
     <addaction name="actionTarget_Modifications"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionData_spliter"/>
+   </widget>
    <addaction name="menuLoad"/>
    <addaction name="menuSave"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="loadAOAction">
@@ -104,6 +111,11 @@
   <action name="actionTarget_Modifications">
    <property name="text">
     <string>Target Modifications</string>
+   </property>
+  </action>
+  <action name="actionData_spliter">
+   <property name="text">
+    <string>Data spliter</string>
    </property>
   </action>
  </widget>
