@@ -1,0 +1,73 @@
+import sys
+from os import listdir, system, execl
+import os.path
+import PySide2
+from PySide2 import QtGui
+from PySide2 import QtWidgets
+from PySide2 import QtXml
+from PySide2.QtUiTools import QUiLoader
+from PySide2.QtWidgets import (QApplication, QPushButton, 
+                            QLineEdit, QPlainTextEdit, QComboBox, 
+                            QCheckBox, QAction, QFileDialog, 
+                            QMessageBox, QInputDialog, QListWidget, 
+                            QListView, QGraphicsScene, QGraphicsView, 
+                            QProgressDialog)
+from PySide2.QtCore import QFile, QObject, QRectF, Qt
+from PySide2.QtGui import (QIcon, QPixmap, QImage)
+
+from PIL import Image
+from bbox import BBox
+from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBEL_FOLDER
+
+
+# A DataScene handles the displaying of a single data (a image and a lable file)
+class DataScene(object):
+    def __init__(self, viewerScene, viewerView, targetList, data_name, current_data_dir):
+        self.viewerScene = viewerScene
+        self.viewerView = viewerView
+        self.targetList = targetList
+        self.data_name = data_name
+        self.current_data_dir = current_data_dir
+
+        self.img_dir = self.current_data_dir + IMG_FOLDER \
+            + '/' + data_name + '.' + IMG_EXT
+        self.label_dir = self.current_data_dir + LEBEL_FOLDER \
+            + '/' + data_name + '.' + 'txt'
+
+    def show(self, highlight=-1):
+        # load viwer and the target list
+        self.viewerScene.clear()
+        img = QPixmap(self.img_dir)
+        w, h = img.size().toTuple()
+        self.viewerScene.addPixmap(img)
+
+        # reinitialize the target list
+        self.targetList.clear()
+        # self.rmTargetButton.setEnabled(False)
+        self.targetList_modified = False
+
+        for i, one_box in enumerate(label_table[self.data_name]):
+            if highlight == i:
+                one_box.drew_in_scene(self.viewerScene, highlight=True)
+            else:
+                one_box.drew_in_scene(self.viewerScene)
+            
+            newItem = QtWidgets.QListWidgetItem(str(one_box.cls))
+            self.targetList.addItem(newItem)
+        self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+        self.viewerScene.update()
+
+
+    def update_viewer(self, highlight=-1):
+        # Same as load_viewer but without loading the target list
+        self.viewerScene.clear()
+        img = QPixmap(self.img_dir)
+        w, h = img.size().toTuple()
+        self.viewerScene.addPixmap(img)
+        for i, one_box in enumerate(label_table[self.data_name]):
+            if highlight == i:
+                one_box.drew_in_scene(self.viewerScene, highlight=True)
+            else:
+                one_box.drew_in_scene(self.viewerScene)
+        self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+        self.viewerScene.update()

@@ -23,18 +23,8 @@ from PySide2.QtGui import (QIcon, QPixmap, QImage)
 
 from PIL import Image
 from bbox import BBox
-
-
-IMG_FOLDER = "/images"
-IMG_EXT = 'png'
-LEBEL_FOLDER = "/labels"
-
-label_table = {}
-
-# A modification is a array of [data_name, target_idx, new_data, old_data]
-# to delete a target, set new_data to ''
-# Old data is used to undo changes
-modification_list = []
+from dataScene import DataScene
+from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBEL_FOLDER
 
 
 class Form(QObject):
@@ -154,47 +144,53 @@ class Form(QObject):
 
 
     def load_viewer(self, highlight=-1):
-        self.viewerScene.clear()
+        # self.viewerScene.clear()
         data_name = str(self.dataList.currentItem().text())
-        img_dir = self.current_data_dir + IMG_FOLDER \
-            + '/' + data_name + '.' + IMG_EXT
-        img = QPixmap(img_dir)
-        w, h = img.size().toTuple()
-        self.viewerScene.addPixmap(img)
+        # img_dir = self.current_data_dir + IMG_FOLDER \
+        #     + '/' + data_name + '.' + IMG_EXT
+        # img = QPixmap(img_dir)
+        # w, h = img.size().toTuple()
+        # self.viewerScene.addPixmap(img)
 
-        # reinitialize the target list
-        self.targetList.clear()
+        # # reinitialize the target list
+        # self.targetList.clear()
         self.rmTargetButton.setEnabled(False)
-        self.targetList_modified = False
+        # self.targetList_modified = False
 
-        for i, one_box in enumerate(label_table[data_name]):
-            if highlight == i:
-                one_box.drew_in_scene(self.viewerScene, highlight=True)
-            else:
-                one_box.drew_in_scene(self.viewerScene)
+        # for i, one_box in enumerate(label_table[data_name]):
+        #     if highlight == i:
+        #         one_box.drew_in_scene(self.viewerScene, highlight=True)
+        #     else:
+        #         one_box.drew_in_scene(self.viewerScene)
             
-            newItem = QtWidgets.QListWidgetItem(str(one_box.cls))
-            self.targetList.addItem(newItem)
-        self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
-        self.viewerScene.update()
+        #     newItem = QtWidgets.QListWidgetItem(str(one_box.cls))
+        #     self.targetList.addItem(newItem)
+        # self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+        # self.viewerScene.update()
+
+        self.current_dataScene = DataScene(self.viewerScene, \
+            self.viewerView, self.targetList, data_name, \
+            self.current_data_dir)
+        self.current_dataScene.show(highlight=highlight)
 
 
     def reload_viewer(self, highlight=-1):
-        # Same as load_viewer but without loading the target list
-        self.viewerScene.clear()
+        # # Same as load_viewer but without loading the target list
+        # self.viewerScene.clear()
         data_name = str(self.dataList.currentItem().text())
-        img_dir = self.current_data_dir + IMG_FOLDER \
-            + '/' + data_name + '.' + IMG_EXT
-        img = QPixmap(img_dir)
-        w, h = img.size().toTuple()
-        self.viewerScene.addPixmap(img)
-        for i, one_box in enumerate(label_table[data_name]):
-            if highlight == i:
-                one_box.drew_in_scene(self.viewerScene, highlight=True)
-            else:
-                one_box.drew_in_scene(self.viewerScene)
-        self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
-        self.viewerScene.update()
+        # img_dir = self.current_data_dir + IMG_FOLDER \
+        #     + '/' + data_name + '.' + IMG_EXT
+        # img = QPixmap(img_dir)
+        # w, h = img.size().toTuple()
+        # self.viewerScene.addPixmap(img)
+        # for i, one_box in enumerate(label_table[data_name]):
+        #     if highlight == i:
+        #         one_box.drew_in_scene(self.viewerScene, highlight=True)
+        #     else:
+        #         one_box.drew_in_scene(self.viewerScene)
+        # self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
+        # self.viewerScene.update()
+        self.current_dataScene.update_viewer(highlight=highlight)
 
 
     def hightlight_target(self):
