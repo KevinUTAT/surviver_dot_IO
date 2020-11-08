@@ -8,8 +8,10 @@ from PySide2.QtGui import QBrush, QPen, QFont
 
 
 class BBox(object):
-    def __init__(self, xywh, class_num):
+    def __init__(self, xywh, imgSizeWH, class_num):
         # make sure xywh = [centerX, centerY, width, height]
+        self.xywh = xywh
+        self.imgSizeWH = imgSizeWH
 
         self.top = int(xywh[1] - xywh[3]/2)
         self.bottom = int(xywh[1] + xywh[3]/2) 
@@ -42,5 +44,20 @@ class BBox(object):
             bottom_line = scene_ref.addLine(self.left, self.bottom, self.right, self.bottom, pen=bluePen)
             left_line   = scene_ref.addLine(self.left, self.top, self.left, self.bottom, pen=bluePen)
             right_line  = scene_ref.addLine(self.right, self.top, self.right, self.bottom, pen=bluePen)
+
+
+        # return a string representing one line of label
+    def to_label_str(self):
+        label_str = ""
+        label_str += str(self.cls)
+        label_str += " "
+        label_str += str(self.xywh[0]/self.imgSizeWH[0])
+        label_str += " "
+        label_str += str(self.xywh[1]/self.imgSizeWH[1])
+        label_str += " "
+        label_str += str(self.xywh[2]/self.imgSizeWH[0])
+        label_str += " "
+        label_str += str(self.xywh[3]/self.imgSizeWH[1])
+        return label_str
 
 

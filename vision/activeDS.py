@@ -51,6 +51,10 @@ class Form(QObject):
         self.window.findChild(QAction, 'actionTarget_Modifications').\
             triggered.connect(self.save_mods)
 
+        # show change history
+        self.window.findChild(QAction, 'actionView_history').\
+            triggered.connect(self.show_mods)
+
         # Tools -----------
         # data spliter
         self.window.findChild(QAction, 'actionData_spliter').\
@@ -72,10 +76,18 @@ class Form(QObject):
         self.targetList = \
             self.window.findChild(QListWidget, 'targetList')
         self.targetList.itemSelectionChanged.connect(self.hightlight_target)
+        # self.current_dataScene = DataScene(self.viewerScene, \
+        #     self.viewerView, self.targetList)
+        # self.targetList.itemDoubleClicked.connect(\
+        #     self.current_dataScene.edit_target_class)
+
+
         self.rmTargetButton = \
             self.window.findChild(QPushButton, 'rmTargetButton')
         self.undoButton = \
             self.window.findChild(QPushButton, 'undoButton')
+
+
         self.rmTargetButton.setEnabled(False)
         self.undoButton.setEnabled(False)
         self.rmTargetButton.clicked.connect(self.remove_target)
@@ -139,12 +151,12 @@ class Form(QObject):
                         width = int(float(bbox_l[3]) * w)
                         height = int(float(bbox_l[4]) * h)
                         new_bbox = BBox([centerX, centerY, width, height],\
-                                class_num)
+                                [w, h], class_num)
                         bboxs.append(new_bbox)
 
                     label_table[dataName] = bboxs
             else:
-                print("Cannot find label: " + \
+                self.error_msg("Cannot find label: " + \
                     label_dir)
             
             self.dataList.addItem(newItem)
@@ -184,6 +196,7 @@ class Form(QObject):
         self.current_dataScene = DataScene(self.viewerScene, \
             self.viewerView, self.targetList, data_name, \
             self.current_data_dir)
+        self.targetList.itemDoubleClicked.connect(self.current_dataScene.edit_target_class)
         self.current_dataScene.show(highlight=highlight)
 
 
@@ -270,6 +283,12 @@ class Form(QObject):
         modification_list.clear()
 
 
+    def show_mods(self):
+        self.info_msg(str(modification_list),\
+            "Chnage History")
+
+
+    # Tools ++++++++++++++++++++++++++++++++++++++++++++++++++
     def run_spliter(self):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
@@ -285,6 +304,7 @@ class Form(QObject):
             return
 
 
+    # helpers ++++++++++++++++++++++++++++++++++++++++++++++++
     def error_msg(self, error_msg):
         error_window = QMessageBox()
         error_window.setIcon(QMessageBox.Critical)
@@ -294,11 +314,20 @@ class Form(QObject):
         error_window.exec_()
 
 
-    def warn_msg(self, error_msg):
+    def warn_msg(self, warn_msg):
         error_window = QMessageBox()
         error_window.setIcon(QMessageBox.Warning)
-        error_window.setText(error_msg)
+        error_window.setText(warn_msg)
         error_window.setWindowTitle("Warning")
+        error_window.setStandardButtons(QMessageBox.Ok)
+        error_window.exec_()
+
+
+    def info_msg(self, info_msg, title='Information'):
+        error_window = QMessageBox()
+        error_window.setIcon(QMessageBox.Information)
+        error_window.setText(info_msg)
+        error_window.setWindowTitle(title)
         error_window.setStandardButtons(QMessageBox.Ok)
         error_window.exec_()
 

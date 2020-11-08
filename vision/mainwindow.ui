@@ -70,6 +70,19 @@
      <string>Undo</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>1150</x>
+      <y>410</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string> Double click to edit</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -91,6 +104,7 @@
      <string>Save</string>
     </property>
     <addaction name="actionTarget_Modifications"/>
+    <addaction name="actionView_history"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -116,6 +130,11 @@
   <action name="actionData_spliter">
    <property name="text">
     <string>Data spliter</string>
+   </property>
+  </action>
+  <action name="actionView_history">
+   <property name="text">
+    <string>View change history</string>
    </property>
   </action>
  </widget>

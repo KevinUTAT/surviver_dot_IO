@@ -1,6 +1,7 @@
 import sys
 from os import listdir, system, execl
 import os.path
+import copy
 import PySide2
 from PySide2 import QtGui
 from PySide2 import QtWidgets
@@ -22,7 +23,8 @@ from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBE
 
 # A DataScene handles the displaying of a single data (a image and a lable file)
 class DataScene(object):
-    def __init__(self, viewerScene, viewerView, targetList, data_name, current_data_dir):
+
+    def __init__(self, viewerScene, viewerView, targetList, data_name='', current_data_dir=''):
         self.viewerScene = viewerScene
         self.viewerView = viewerView
         self.targetList = targetList
@@ -54,6 +56,7 @@ class DataScene(object):
             
             newItem = QtWidgets.QListWidgetItem(str(one_box.cls))
             self.targetList.addItem(newItem)
+
         self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.viewerScene.update()
 
@@ -71,3 +74,29 @@ class DataScene(object):
                 one_box.drew_in_scene(self.viewerScene)
         self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.viewerScene.update()
+
+
+    def edit_target_class(self):
+        # findout which target is selected first
+        target_idx = self.targetList.currentRow()
+
+        # show a dialog
+        dialog = QInputDialog()
+        label_text = "Input the correct class number.\n"\
+            "Please note your input will not be checked for legality"
+        text, okPressed = \
+            QInputDialog.getText(dialog, \
+            "Edit class", \
+            label_text, \
+            QLineEdit.Normal)
+        # print(text, okPressed)
+        if okPressed and text != '':
+            old_bbox = copy.deepcopy(label_table[self.data_name][target_idx])
+            label_table[self.data_name][target_idx].cls = int(text)
+            # log the change
+            new_data = label_table[self.data_name][target_idx].to_label_str()
+            # print(new_data)
+            mod = [self.data_name, target_idx, new_data, old_bbox]
+            modification_list.append(mod)
+            self.show()
+
