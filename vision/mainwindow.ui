@@ -40,7 +40,7 @@
       <x>1150</x>
       <y>10</y>
       <width>151</width>
-      <height>361</height>
+      <height>621</height>
      </rect>
     </property>
    </widget>
@@ -48,7 +48,7 @@
     <property name="geometry">
      <rect>
       <x>1150</x>
-      <y>380</y>
+      <y>640</y>
       <width>71</width>
       <height>22</height>
      </rect>
@@ -61,7 +61,7 @@
     <property name="geometry">
      <rect>
       <x>1230</x>
-      <y>380</y>
+      <y>640</y>
       <width>71</width>
       <height>22</height>
      </rect>
@@ -70,17 +70,30 @@
      <string>Undo</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QPushButton" name="deleteButton">
     <property name="geometry">
      <rect>
-      <x>1150</x>
-      <y>410</y>
-      <width>151</width>
-      <height>16</height>
+      <x>1230</x>
+      <y>670</y>
+      <width>71</width>
+      <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string> Double click to edit</string>
+     <string>Delete Img</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="editButton">
+    <property name="geometry">
+     <rect>
+      <x>1150</x>
+      <y>670</y>
+      <width>71</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Edit</string>
     </property>
    </widget>
   </widget>
@@ -98,6 +111,7 @@
      <string>Load</string>
     </property>
     <addaction name="loadAOAction"/>
+    <addaction name="actionLoadClasses"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -111,6 +125,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionData_spliter"/>
+    <addaction name="actionRename"/>
    </widget>
    <addaction name="menuLoad"/>
    <addaction name="menuSave"/>
@@ -135,6 +150,16 @@
   <action name="actionView_history">
    <property name="text">
     <string>View change history</string>
+   </property>
+  </action>
+  <action name="actionRename">
+   <property name="text">
+    <string>Rename all data</string>
+   </property>
+  </action>
+  <action name="actionLoadClasses">
+   <property name="text">
+    <string>Classes</string>
    </property>
   </action>
  </widget>

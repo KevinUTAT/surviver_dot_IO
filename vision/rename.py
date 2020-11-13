@@ -6,6 +6,7 @@ that is going to be used as training data:
 import os
 import datetime
 import re
+from os import path
 from numpy import random
 
 img_dir = "raw/"
@@ -32,14 +33,27 @@ def rename_all():
 
 
 # used for renaming image-label pairs
-def back_ward_rename():
-    for count, filename in enumerate(os.listdir(img_dir)):
-        newname = rename(filename, img_dir)
-        
-        new_name = newname.split('.')[0] + '.' + "txt"
-        src = label_dir + filename.split('.')[0] + '.' + "txt"
-        target = label_dir + new_name
-        os.rename(src, target)
+def back_ward_rename(alt_dir=None):
+    if alt_dir == None:
+        for count, filename in enumerate(os.listdir(img_dir)):
+            newname = rename(filename, img_dir)
+            
+            new_name = newname.split('.')[0] + '.' + "txt"
+            src = label_dir + filename.split('.')[0] + '.' + "txt"
+            target = label_dir + new_name
+            os.rename(src, target)
+    else:
+        img_sub = "images/"
+        label_sub = "labels/"
+        img_dir_alt = path.join(alt_dir, img_sub)
+        label_dir_alt = path.join(alt_dir, label_sub)
+        for count, filename in enumerate(os.listdir(img_dir_alt)):
+            newname = rename(filename, img_dir_alt)
+            
+            new_name = newname.split('.')[0] + '.' + "txt"
+            src = label_dir_alt + filename.split('.')[0] + '.' + "txt"
+            target = label_dir_alt + new_name
+            os.rename(src, target)
 
 
 # correcting labels with class non - 0

@@ -26,6 +26,7 @@ from bbox import BBox
 from dataScene import DataScene
 from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBEL_FOLDER
 import train_val_spliter
+import rename
 
 
 class Form(QObject):
@@ -59,6 +60,9 @@ class Form(QObject):
         # data spliter
         self.window.findChild(QAction, 'actionData_spliter').\
             triggered.connect(self.run_spliter)
+        # renamer
+        self.window.findChild(QAction, 'actionRename').\
+            triggered.connect(self.run_rename)
 
         # Data list =====================================================
         self.dataList = \
@@ -81,11 +85,15 @@ class Form(QObject):
         # self.targetList.itemDoubleClicked.connect(\
         #     self.current_dataScene.edit_target_class)
 
-
+        # editing buttons ===============================================
         self.rmTargetButton = \
             self.window.findChild(QPushButton, 'rmTargetButton')
         self.undoButton = \
             self.window.findChild(QPushButton, 'undoButton')
+        self.editButton = \
+            self.window.findChild(QPushButton, 'editButton')
+        self.deleteButton = \
+            self.window.findChild(QPushButton, 'deletButton')
 
 
         self.rmTargetButton.setEnabled(False)
@@ -196,7 +204,9 @@ class Form(QObject):
         self.current_dataScene = DataScene(self.viewerScene, \
             self.viewerView, self.targetList, data_name, \
             self.current_data_dir)
+        # setup edit trigger (double click or edit button)
         self.targetList.itemDoubleClicked.connect(self.current_dataScene.edit_target_class)
+        self.editButton.clicked.connect(self.current_dataScene.edit_target_class)
         self.current_dataScene.show(highlight=highlight)
 
 
@@ -302,6 +312,17 @@ class Form(QObject):
             train_val_spliter.train_val_split()
         else:
             return
+
+
+    def run_rename(self):
+        data_folder_dir = QFileDialog.getExistingDirectory()
+        if (not os.path.exists(data_folder_dir + IMG_FOLDER)) \
+            or (not os.path.exists(data_folder_dir + LEBEL_FOLDER)):
+            self.error_msg("Cannot find proper data in " + data_folder_dir \
+                + '\n' + "A proper data folder should have subfolders: " \
+                + IMG_FOLDER + " and " + LEBEL_FOLDER)
+            return
+        rename.back_ward_rename(data_folder_dir)
 
 
     # helpers ++++++++++++++++++++++++++++++++++++++++++++++++

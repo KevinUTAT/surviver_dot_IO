@@ -148,5 +148,7 @@ vision/runs
 vision/inference
 vision/active/images
 vision/active/labels
+vision/active_test/images
+vision/active_test/labels
 *.mp4
 *.png
