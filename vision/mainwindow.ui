@@ -119,6 +119,7 @@
     </property>
     <addaction name="actionTarget_Modifications"/>
     <addaction name="actionView_history"/>
+    <addaction name="actionActive_data_to"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -160,6 +161,11 @@
   <action name="actionLoadClasses">
    <property name="text">
     <string>Classes</string>
+   </property>
+  </action>
+  <action name="actionActive_data_to">
+   <property name="text">
+    <string>Active data to ..</string>
    </property>
   </action>
  </widget>

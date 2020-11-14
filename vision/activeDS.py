@@ -22,6 +22,7 @@ from PySide2.QtCore import QFile, QObject, QRectF, Qt
 from PySide2.QtGui import (QIcon, QPixmap, QImage)
 
 from PIL import Image
+import shutil
 from bbox import BBox
 from dataScene import DataScene
 from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBEL_FOLDER
@@ -55,6 +56,10 @@ class Form(QObject):
         # show change history
         self.window.findChild(QAction, 'actionView_history').\
             triggered.connect(self.show_mods)
+        
+        # save active data to ..
+        self.window.findChild(QAction, 'actionActive_data_to').\
+            triggered.connect(self.save_active_to)
 
         # Tools -----------
         # data spliter
@@ -121,6 +126,8 @@ class Form(QObject):
             dataName = imgName.split('.')[0] # remove extension
             name_list.append(dataName)
         self.current_data_dir = self.adc_folder_dir
+        label_table.clear()
+        modification_list.clear()
         self.load_dataList(name_list)
         
 
@@ -268,11 +275,11 @@ class Form(QObject):
         else:
             data_idx, data_item = self.find_data_by_name(dataname)
         # remove data item form datalist
-        self.info_msg("The image and label of "\
-            + dataname + " will be mark for deletion\n"\
+        self.info_msg("The image and label of: \n"\
+            + dataname + "\nwill be mark for deletion\n"\
             + "Deletion will not happen until action: \n"\
             + "Save -> Target modifications")
-            
+
         if self.dataList.isItemSelected(data_item):
              # foucus on a different data 
             if data_idx < (self.dataList.count()-1):
@@ -347,6 +354,47 @@ class Form(QObject):
     def show_mods(self):
         self.info_msg(str(modification_list),\
             "Chnage History")
+
+
+    def save_active_to(self):
+        dest = QFileDialog.getExistingDirectory()
+        if (not os.path.exists(dest + IMG_FOLDER)) \
+            or (not os.path.exists(dest + LEBEL_FOLDER)):
+            self.error_msg("Cannot find proper data in " + dest \
+                + '\n' + "A proper data folder should have subfolders: " \
+                + IMG_FOLDER + " and " + LEBEL_FOLDER)
+            return
+        dest_img_folder = dest + IMG_FOLDER
+        dest_label_folder = dest + LEBEL_FOLDER
+        for img in os.listdir(self.current_data_dir + IMG_FOLDER):
+
+            source_img = self.current_data_dir + IMG_FOLDER \
+                + '/' + img
+            dest_img = dest_img_folder + '/' + img
+
+            source_label = self.current_data_dir + LEBEL_FOLDER \
+                + '/' + img.split('.')[0] + ".txt"
+            dest_label = dest_label_folder + \
+                '/' +img.split('.')[0] + ".txt"
+
+            # do some check first:
+            # 1. data with the same name not already there
+            # 2. label exist for img
+            if os.path.exists(dest_img):
+                self.error_msg("Image " + dest_img + \
+                    " already exist, it will not be moved")
+                continue
+            if os.path.exists(dest_label):
+                self.error_msg("Label " + dest_label + \
+                    " already exist, it will not be moved")
+                continue
+            if not os.path.exists(source_label):
+                self.error_msg("The label " + source_label \
+                    + " do not exist, data will not be moved")
+                continue
+            shutil.move(source_img, dest_img)
+            shutil.move(source_label, dest_label)
+            
 
 
     # Tools ++++++++++++++++++++++++++++++++++++++++++++++++++
