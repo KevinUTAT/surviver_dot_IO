@@ -13,4 +13,5 @@ label_table = {}
 # A modification is a array of [data_name, target_idx, new_data, old_data]
 # to delete a target, set new_data to ''
 # Old data is used to undo changes
+# to delete a image-label pair set target_idx to -1
 modification_list = []

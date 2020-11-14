@@ -93,7 +93,7 @@ class Form(QObject):
         self.editButton = \
             self.window.findChild(QPushButton, 'editButton')
         self.deleteButton = \
-            self.window.findChild(QPushButton, 'deletButton')
+            self.window.findChild(QPushButton, 'deleteButton')
 
 
         self.rmTargetButton.setEnabled(False)
@@ -101,6 +101,7 @@ class Form(QObject):
         self.rmTargetButton.clicked.connect(self.remove_target)
         self.targetList_modified = False
         self.undoButton.clicked.connect(self.undo_mod)
+        self.deleteButton.clicked.connect(self.remove_img)
 
         self.window.show()
 
@@ -257,16 +258,61 @@ class Form(QObject):
         self.load_viewer()
 
 
+    def remove_img(self, dataname=None):
+        # remove a imgage-label pair and mark it for deletion
+        old_item_n_label = []
+        if not dataname:
+            dataname = self.current_dataScene.data_name
+            data_idx = self.dataList.currentRow()
+            data_item = self.dataList.item(data_idx)
+        else:
+            data_idx, data_item = self.find_data_by_name(dataname)
+        # remove data item form datalist
+        self.info_msg("The image and label of "\
+            + dataname + " will be mark for deletion\n"\
+            + "Deletion will not happen until action: \n"\
+            + "Save -> Target modifications")
+            
+        if self.dataList.isItemSelected(data_item):
+             # foucus on a different data 
+            if data_idx < (self.dataList.count()-1):
+                self.dataList.setCurrentRow(data_idx + 1)
+            else:
+                self.dataList.setCurrentRow(data_idx - 1)
+
+        old_item_n_label.append((data_idx, data_item))
+        self.dataList.takeItem(data_idx)
+
+        # remove from labeltable
+        old_item_n_label.append(label_table[dataname])
+        del label_table[dataname]
+
+        # mark for deletion
+        mod = [dataname, -1, '', old_item_n_label]
+        modification_list.append(mod)
+        self.undoButton.setEnabled(True)
+
+
     def undo_mod(self):
         last_mod = modification_list[-1]
         data_name = last_mod[0]
         tar_idx = last_mod[1]
-        # insert old bbox back if deleted
-        # else just restore old bbox
-        if last_mod[2] == '':
-            label_table[data_name].insert(tar_idx, last_mod[3])
+        # to undo a data deletion:
+        # 1. resore itme in datalist
+        # 2. resore label_table
+        if tar_idx == -1:
+            old_idx = last_mod[3][0][0]
+            old_item = last_mod[3][0][1]
+            old_label = last_mod[3][1]
+            self.dataList.insertItem(old_idx, old_item)
+            label_table[data_name] = old_label
         else:
-            label_table[data_name][tar_idx] = last_mod[3]
+            # insert old bbox back if deleted
+            # else just restore old bbox
+            if last_mod[2] == '':
+                label_table[data_name].insert(tar_idx, last_mod[3])
+            else:
+                label_table[data_name][tar_idx] = last_mod[3]
 
         # then remove this modification form mod list
         del modification_list[-1]
@@ -276,20 +322,25 @@ class Form(QObject):
         self.load_viewer()
         
 
-
     def save_mods(self):
         for mod in modification_list:
             label_dir = self.current_data_dir + LEBEL_FOLDER \
                     + '/' + mod[0] + '.txt'
-            with open(label_dir, 'r') as label_file:
-                lines = label_file.readlines()
-            if mod[2] == '':
-                del lines[mod[1]]
+            img_dir = self.current_data_dir + IMG_FOLDER \
+                    + '/' + mod[0] + '.' + IMG_EXT
+            if mod[1] == -1:
+                os.remove(img_dir)
+                os.remove(label_dir)
             else:
-                lines[mod[1]] = mod[2]
+                with open(label_dir, 'r') as label_file:
+                    lines = label_file.readlines()
+                if mod[2] == '':
+                    del lines[mod[1]]
+                else:
+                    lines[mod[1]] = mod[2]
 
-            with open(label_dir, 'w') as label_file:
-                label_file.writelines(lines)
+                with open(label_dir, 'w') as label_file:
+                    label_file.writelines(lines)
         modification_list.clear()
 
 
@@ -326,6 +377,15 @@ class Form(QObject):
 
 
     # helpers ++++++++++++++++++++++++++++++++++++++++++++++++
+    def find_data_by_name(self, dataname):
+        # return the row number and Qlistitem
+        for item_idx in range(self.dataList.count()):
+            cur_item = self.dataList.item(item_idx)
+            if cur_item.text() == dataname:
+                return item_idx, cur_item
+        return None
+
+
     def error_msg(self, error_msg):
         error_window = QMessageBox()
         error_window.setIcon(QMessageBox.Critical)
