@@ -134,7 +134,7 @@ def clean_traking_list():
     
 
 
-def detect(opt, prediction, save_img=False):
+def detect(opt, prediction, save_img=False, progress=None):
     out, source, weights, view_img, save_txt, imgsz = \
         opt.output, opt.source, opt.weights, opt.view_img, opt.save_txt, opt.img_size
     webcam = source == '0' or source.startswith('rtsp') or source.startswith('http') or source.endswith('.txt')
@@ -177,6 +177,8 @@ def detect(opt, prediction, save_img=False):
     names = model.module.names if hasattr(model, 'module') else model.names
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(names))]
 
+    frame_count = 0
+
     # Run inference
     moTrack = Sort()
     t0 = time.time()
@@ -188,6 +190,13 @@ def detect(opt, prediction, save_img=False):
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
+
+        # update progress
+        if not progress:
+            frame_count += 1
+            progress.setValue(int(frame_count / len(dataset)))
+            if progress.wasCanceled():
+                    return
 
         # Inference
         t1 = torch_utils.time_synchronized()
@@ -417,6 +426,35 @@ def detect(opt, prediction, save_img=False):
 
     print('Done. (%.3fs)' % (time.time() - t0))
 
+
+def run_detect_video(vid_source, progress, active=0.0):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
+    parser.add_argument('--source', type=str, default=vid_source, help='source')  # file/folder, 0 for webcam ../Drone-Yolo/video/cuttingdata3.mp4
+    parser.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
+    parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')
+    parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
+    parser.add_argument('--iou-thres', type=float, default=0.3, help='IOU threshold for NMS')
+    parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    parser.add_argument('--view-img', action='store_true', help='display results')
+    parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
+    parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --class 0, or --class 0 2 3')
+    parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
+    parser.add_argument('--augment', action='store_true', help='augmented inference')
+    parser.add_argument('--update', action='store_true', help='update all models')
+    parser.add_argument('--active', type=float, default=active, help='out put threshold, enable active learning ouput when set to non zero')
+    parser.add_argument('--debug', type=bool, default=False, help='add more info in image overlay')
+    opt = parser.parse_args()
+    print(opt)
+
+    outputs = queue.Queue()
+    with torch.no_grad():
+        if opt.update:  # update all models (to fix SourceChangeWarning)
+            for opt.weights in ['yolov5s.pt', 'yolov5m.pt', 'yolov5l.pt', 'yolov5x.pt', 'yolov3-spp.pt']:
+                detect(opt=opt, prediction=outputs, progress=progress)
+                strip_optimizer(opt.weights)
+        else:
+            detect(opt=opt, prediction=outputs, progress=progress)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

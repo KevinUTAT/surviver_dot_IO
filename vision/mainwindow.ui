@@ -112,6 +112,7 @@
     </property>
     <addaction name="loadAOAction"/>
     <addaction name="actionLoadClasses"/>
+    <addaction name="actionFrom_Video"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -166,6 +167,11 @@
   <action name="actionActive_data_to">
    <property name="text">
     <string>Active data to ..</string>
+   </property>
+  </action>
+  <action name="actionFrom_Video">
+   <property name="text">
+    <string>From Video</string>
    </property>
   </action>
  </widget>

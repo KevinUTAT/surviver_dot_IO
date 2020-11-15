@@ -28,6 +28,7 @@ from dataScene import DataScene
 from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBEL_FOLDER
 import train_val_spliter
 import rename
+import detect
 
 
 class Form(QObject):
@@ -48,6 +49,10 @@ class Form(QObject):
         # Load ADS action
         self.window.findChild(QAction, 'loadAOAction').\
             triggered.connect(self.load_adc)
+        
+        # Load from video
+        self.window.findChild(QAction, 'actionFrom_Video').\
+            triggered.connect(self.get_active_from_video)
 
         # load save target mod action
         self.window.findChild(QAction, 'actionTarget_Modifications').\
@@ -394,6 +399,30 @@ class Form(QObject):
                 continue
             shutil.move(source_img, dest_img)
             shutil.move(source_label, dest_label)
+
+
+    def get_active_from_video(self):
+        (source_vid, ext) = QFileDialog.getOpenFileName(\
+                filter="Video files (*.mp4 *.avi)")
+        # show a dialog
+        dialog = QInputDialog()
+        label_text = "Input active threshold"
+        text, okPressed = \
+            QInputDialog.getText(dialog, \
+            "Active Threshold", \
+            label_text, \
+            QLineEdit.Normal)
+        if okPressed and text != '':
+            active_thr = float(text)
+        else:
+            active_thr = 0.0
+        progress = 0
+        progress_bar = QProgressDialog("Detecting Video...", "Abort", \
+                0, 100, self.window)
+        progress_bar.setWindowModality(Qt.WindowModal)
+        progress_bar.setValue(progress)
+        detect.run_detect_video(source_vid, progress_bar, active_thr)
+
             
 
 
