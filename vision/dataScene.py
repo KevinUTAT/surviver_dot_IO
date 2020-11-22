@@ -25,10 +25,11 @@ from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBE
 class DataScene(object):
 
     def __init__(self, viewerScene, viewerView, targetList, \
-        data_name='', current_data_dir=''):
+        ui_form, data_name='', current_data_dir=''):
         self.viewerScene = viewerScene
         self.viewerView = viewerView
         self.targetList = targetList
+        self.ui_form = ui_form
         self.data_name = data_name
         self.current_data_dir = current_data_dir
 
@@ -63,6 +64,7 @@ class DataScene(object):
         self.viewerScene.update()
 
 
+
     def update_viewer(self, highlight=-1):
         # Same as load_viewer but without loading the target list
         self.viewerScene.clear()
@@ -71,9 +73,10 @@ class DataScene(object):
         self.viewerScene.addPixmap(img)
         for i, one_box in enumerate(label_table[self.data_name]):
             if highlight == i:
-                one_box.drew_in_scene(self.viewerScene, i, highlight=True)
+                one_box.drew_in_scene(self.viewerScene, self, i, \
+                    highlight=True)
             else:
-                one_box.drew_in_scene(self.viewerScene, i)
+                one_box.drew_in_scene(self.viewerScene, self, i)
         self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.viewerScene.update()
 
@@ -100,6 +103,7 @@ class DataScene(object):
             # print(new_data)
             mod = [self.data_name, target_idx, new_data, old_bbox]
             modification_list.append(mod)
+            self.ui_form.check_undoable()
             self.show()
 
 
@@ -109,5 +113,6 @@ class DataScene(object):
         old_bbox = label_table[self.data_name][target_idx].restore_pt
         mod = [self.data_name, target_idx, new_line, old_bbox]
         modification_list.append(mod)
+        self.ui_form.check_undoable()
 
 

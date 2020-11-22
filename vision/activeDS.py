@@ -216,7 +216,7 @@ class Form(QObject):
         # self.viewerScene.update()
 
         self.current_dataScene = DataScene(self.viewerScene, \
-            self.viewerView, self.targetList, data_name, \
+            self.viewerView, self.targetList, self, data_name, \
             self.current_data_dir)
         # setup edit trigger (double click or edit button)
         self.targetList.itemDoubleClicked.connect(self.current_dataScene.edit_target_class)
@@ -307,12 +307,17 @@ class Form(QObject):
 
 
     def undo_mod(self):
+        if len(modification_list) == 0:
+            self.undoButton.setEnabled(False)
+            return
         last_mod = modification_list[-1]
         data_name = last_mod[0]
         tar_idx = last_mod[1]
         # to undo a data deletion:
         # 1. resore itme in datalist
         # 2. resore label_table
+        # 3. (sometimes) update the target and scene
+        update = False
         if tar_idx == -1:
             old_idx = last_mod[3][0][0]
             old_item = last_mod[3][0][1]
@@ -326,13 +331,15 @@ class Form(QObject):
                 label_table[data_name].insert(tar_idx, last_mod[3])
             else:
                 label_table[data_name][tar_idx] = last_mod[3]
-
+                update = True
         # then remove this modification form mod list
         del modification_list[-1]
 
         if len(modification_list) == 0:
             self.undoButton.setEnabled(False)
         self.load_viewer()
+        if update:
+            label_table[data_name][tar_idx].update()
         
 
     def save_mods(self):
@@ -464,6 +471,13 @@ class Form(QObject):
             if cur_item.text() == dataname:
                 return item_idx, cur_item
         return None
+
+
+    def check_undoable(self):
+        if len(modification_list) == 0:
+            self.undoButton.setEnabled(False)
+        else:
+            self.undoButton.setEnabled(True)
 
 
     def error_msg(self, error_msg):
