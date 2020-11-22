@@ -24,7 +24,8 @@ from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBE
 # A DataScene handles the displaying of a single data (a image and a lable file)
 class DataScene(object):
 
-    def __init__(self, viewerScene, viewerView, targetList, data_name='', current_data_dir=''):
+    def __init__(self, viewerScene, viewerView, targetList, \
+        data_name='', current_data_dir=''):
         self.viewerScene = viewerScene
         self.viewerView = viewerView
         self.targetList = targetList
@@ -50,9 +51,10 @@ class DataScene(object):
 
         for i, one_box in enumerate(label_table[self.data_name]):
             if highlight == i:
-                one_box.drew_in_scene(self.viewerScene, highlight=True)
+                one_box.drew_in_scene(self.viewerScene, self, i, \
+                    highlight=True)
             else:
-                one_box.drew_in_scene(self.viewerScene)
+                one_box.drew_in_scene(self.viewerScene, self, i)
             
             newItem = QtWidgets.QListWidgetItem(str(one_box.cls))
             self.targetList.addItem(newItem)
@@ -69,9 +71,9 @@ class DataScene(object):
         self.viewerScene.addPixmap(img)
         for i, one_box in enumerate(label_table[self.data_name]):
             if highlight == i:
-                one_box.drew_in_scene(self.viewerScene, highlight=True)
+                one_box.drew_in_scene(self.viewerScene, i, highlight=True)
             else:
-                one_box.drew_in_scene(self.viewerScene)
+                one_box.drew_in_scene(self.viewerScene, i)
         self.viewerView.fitInView(QRectF(0, 0, w, h), Qt.KeepAspectRatio)
         self.viewerScene.update()
 
@@ -99,5 +101,13 @@ class DataScene(object):
             mod = [self.data_name, target_idx, new_data, old_bbox]
             modification_list.append(mod)
             self.show()
+
+
+    def record_target_pos(self, target_idx):
+        # record edit made localy in scene
+        new_line = label_table[self.data_name][target_idx].to_label_str()
+        old_bbox = label_table[self.data_name][target_idx].restore_pt
+        mod = [self.data_name, target_idx, new_line, old_bbox]
+        modification_list.append(mod)
 
 

@@ -43,6 +43,16 @@ class Ancker(QGraphicsRectItem):
         # move lines
         self.bbox.redraw_lines_by_anckers()
 
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        # upon release, record the change
+        self.bbox.update()
+        # self.bbox.reorder()
+        # print(self.bbox.to_label_str())
+        self.bbox.dScene.record_target_pos(self.bbox.target_idx)
+
+
     def abs_scenePos(self):
         # TL corner
         return self.origin + self.pos()
@@ -53,3 +63,11 @@ class Ancker(QGraphicsRectItem):
         TL.setX(TL.x() + self.xywh[2]/2)
         TL.setY(TL.y() + self.xywh[3]/2)
         return TL
+
+
+    def centerX(self):
+        return self.abs_scenePos_center().x()
+
+
+    def centerY(self):
+        return self.abs_scenePos_center().y()

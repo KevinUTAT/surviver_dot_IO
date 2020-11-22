@@ -341,12 +341,14 @@ class Form(QObject):
                     + '/' + mod[0] + '.txt'
             img_dir = self.current_data_dir + IMG_FOLDER \
                     + '/' + mod[0] + '.' + IMG_EXT
+            # remove a img
             if mod[1] == -1:
                 os.remove(img_dir)
                 os.remove(label_dir)
             else:
                 with open(label_dir, 'r') as label_file:
                     lines = label_file.readlines()
+                # remove a target (a line)
                 if mod[2] == '':
                     del lines[mod[1]]
                 else:
