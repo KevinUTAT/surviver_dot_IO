@@ -19,7 +19,7 @@ from PySide2.QtWidgets import (QApplication, QPushButton,
                             QListView, QGraphicsScene, QGraphicsView, 
                             QProgressDialog)
 from PySide2.QtCore import QFile, QObject, QRectF, Qt
-from PySide2.QtGui import (QIcon, QPixmap, QImage)
+from PySide2.QtGui import (QIcon, QPixmap, QImage, QCursor)
 
 from PIL import Image
 import shutil
@@ -85,6 +85,7 @@ class Form(QObject):
         self.viewerScene = QGraphicsScene(self)
         self.viewerView = self.window.findChild(QGraphicsView, 'dataViewer')
         self.viewerView.setScene(self.viewerScene)
+        self.viewerView.setCursor(QCursor(PySide2.QtCore.Qt.CrossCursor))
 
         # Targets list ==================================================
         self.targetList = \

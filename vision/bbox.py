@@ -4,7 +4,7 @@ import os.path
 import copy
 import PySide2
 from PySide2.QtWidgets import QGraphicsScene
-from PySide2.QtGui import QBrush, QPen, QFont
+from PySide2.QtGui import QBrush, QPen, QFont, QCursor
 from PySide2.QtCore import QLineF, QPointF
 from Ancker import Ancker
 
@@ -43,15 +43,19 @@ class BBox(object):
         # br.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
         self.tl = Ancker(self.left-5, self.top-5, 10,10, blueBrush, 'tl', self)
         self.tl.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        self.tl.setCursor(QCursor(PySide2.QtCore.Qt.SizeFDiagCursor))
         scene_ref.addItem(self.tl)
         self.tr = Ancker(self.right-5, self.top-5, 10,10, blueBrush, 'tr', self)
         self.tr.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        self.tr.setCursor(QCursor(PySide2.QtCore.Qt.SizeBDiagCursor))
         scene_ref.addItem(self.tr)
         self.bl = Ancker(self.left-5, self.bottom-5, 10,10, blueBrush, 'bl', self)
         self.bl.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        self.bl.setCursor(QCursor(PySide2.QtCore.Qt.SizeBDiagCursor))
         scene_ref.addItem(self.bl)
         self.br = Ancker(self.right-5, self.bottom-5, 10,10, blueBrush, 'br', self)
         self.br.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        self.br.setCursor(QCursor(PySide2.QtCore.Qt.SizeFDiagCursor))
         scene_ref.addItem(self.br)
 
 
