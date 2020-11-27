@@ -96,7 +96,8 @@ class DataScene(object):
             QLineEdit.Normal)
         # print(text, okPressed)
         if okPressed and text != '':
-            old_bbox = copy.deepcopy(label_table[self.data_name][target_idx])
+            cur_bbox = label_table[self.data_name][target_idx]
+            old_bbox = BBox(cur_bbox.xywh, cur_bbox.imgSizeWH, cur_bbox.cls)
             label_table[self.data_name][target_idx].cls = int(text)
             # log the change
             new_data = label_table[self.data_name][target_idx].to_label_str()

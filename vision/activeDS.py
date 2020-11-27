@@ -106,6 +106,8 @@ class Form(QObject):
         self.deleteButton = \
             self.window.findChild(QPushButton, 'deleteButton')
 
+        self.editButton_connected = False # make sure only connect once
+
 
         self.rmTargetButton.setEnabled(False)
         self.undoButton.setEnabled(False)
@@ -219,8 +221,20 @@ class Form(QObject):
             self.viewerView, self.targetList, self, data_name, \
             self.current_data_dir)
         # setup edit trigger (double click or edit button)
-        self.targetList.itemDoubleClicked.connect(self.current_dataScene.edit_target_class)
-        self.editButton.clicked.connect(self.current_dataScene.edit_target_class)
+        if not self.editButton_connected:
+            self.targetList.itemDoubleClicked.connect(\
+                self.current_dataScene.edit_target_class)
+            self.editButton.clicked.connect(\
+                self.current_dataScene.edit_target_class)
+            self.editButton_connected = True
+        else:
+            self.targetList.itemDoubleClicked.disconnect()
+            self.editButton.clicked.disconnect()
+            self.targetList.itemDoubleClicked.connect(\
+                self.current_dataScene.edit_target_class)
+            self.editButton.clicked.connect(\
+                self.current_dataScene.edit_target_class)
+            self.editButton_connected = True
         self.current_dataScene.show(highlight=highlight)
 
 
