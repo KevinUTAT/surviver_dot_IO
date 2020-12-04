@@ -24,6 +24,7 @@ class Ancker(QGraphicsRectItem):
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
+
         new_pos = self.scenePos()
         # move other anckers acrodingly
         if self.atype == 'tl':

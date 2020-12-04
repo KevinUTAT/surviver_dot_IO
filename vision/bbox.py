@@ -39,14 +39,6 @@ class BBox(object):
         highlightPen.setWidth(3)
 
         # 4 ancker points at 4 corners
-        # tl = scene_ref.addRect(self.left-5, self.top-5, 10,10, brush=blueBrush)
-        # tl.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
-        # tr = scene_ref.addRect(self.right-5, self.top-5, 10,10, brush=blueBrush)
-        # tr.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
-        # bl = scene_ref.addRect(self.left-5, self.bottom-5, 10,10, brush=blueBrush)
-        # bl.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
-        # br = scene_ref.addRect(self.right-5, self.bottom-5, 10,10, brush=blueBrush)
-        # br.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
         self.tl = Ancker(self.left-5, self.top-5, 10,10, blueBrush, 'tl', self)
         self.tl.setFlag(PySide2.QtWidgets.QGraphicsItem.ItemIsMovable, True)
         self.tl.setCursor(QCursor(PySide2.QtCore.Qt.SizeFDiagCursor))

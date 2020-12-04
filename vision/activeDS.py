@@ -26,6 +26,7 @@ import shutil
 from bbox import BBox
 from dataScene import DataScene
 from ADS_config import label_table, modification_list, IMG_FOLDER, IMG_EXT, LEBEL_FOLDER
+from ImgScene import ImgScene
 import train_val_spliter
 import rename
 import detect
@@ -82,7 +83,7 @@ class Form(QObject):
         self.dataList.itemSelectionChanged.connect(self.load_viewer)
 
         # Data Viewer ===================================================
-        self.viewerScene = QGraphicsScene(self)
+        self.viewerScene = ImgScene(self)
         self.viewerView = self.window.findChild(QGraphicsView, 'dataViewer')
         self.viewerView.setScene(self.viewerScene)
         self.viewerView.setCursor(QCursor(PySide2.QtCore.Qt.CrossCursor))
@@ -373,7 +374,8 @@ class Form(QObject):
                 if mod[2] == '':
                     del lines[mod[1]]
                 else:
-                    lines[mod[1]] = mod[2]
+                    print(mod)
+                    lines[mod[1]] = mod[2] + '\n'
 
                 with open(label_dir, 'w') as label_file:
                     label_file.writelines(lines)
