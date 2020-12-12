@@ -22,9 +22,14 @@ class Ancker(QGraphicsRectItem):
         self.xywh = [x, y, w, h] # x, y is TL corner
 
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event, passed_by_scene=False):
         super().mouseMoveEvent(event)
 
+        # disable drew new bbox
+        if passed_by_scene:
+            self.bbox.currentScene.targetCreated = True
+        else:
+            self.bbox.currentScene.mouseDown = False
         new_pos = self.scenePos()
         # move other anckers acrodingly
         if self.atype == 'tl':
@@ -47,6 +52,7 @@ class Ancker(QGraphicsRectItem):
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
+        
         # upon release, record the change
         self.bbox.update()
         # self.bbox.reorder()

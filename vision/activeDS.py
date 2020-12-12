@@ -221,6 +221,7 @@ class Form(QObject):
         self.current_dataScene = DataScene(self.viewerScene, \
             self.viewerView, self.targetList, self, data_name, \
             self.current_data_dir)
+        self.viewerScene.set_dataScene(self.current_dataScene)
         # setup edit trigger (double click or edit button)
         if not self.editButton_connected:
             self.targetList.itemDoubleClicked.connect(\
@@ -374,7 +375,6 @@ class Form(QObject):
                 if mod[2] == '':
                     del lines[mod[1]]
                 else:
-                    print(mod)
                     lines[mod[1]] = mod[2] + '\n'
 
                 with open(label_dir, 'w') as label_file:

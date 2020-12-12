@@ -43,6 +43,7 @@ class DataScene(object):
         self.viewerScene.clear()
         img = QPixmap(self.img_dir)
         w, h = img.size().toTuple()
+        self.backgroundSize = [w, h]
         self.viewerScene.addPixmap(img)
 
         # reinitialize the target list
