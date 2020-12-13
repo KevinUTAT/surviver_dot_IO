@@ -168,3 +168,14 @@ class BBox(object):
         return label_str
 
 
+    def __str__(self):
+        str_out = "BBox: "
+        str_out += "cls=" + str(self.cls)
+        str_out += " At:" + str(self.xywh)
+        return str_out
+
+
+    def __repr__(self):
+        return self.__str__()
+
+

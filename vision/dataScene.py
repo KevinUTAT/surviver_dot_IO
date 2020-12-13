@@ -118,3 +118,16 @@ class DataScene(object):
         self.ui_form.check_undoable()
 
 
+    def record_new_target(self, new_bbox):
+        # add new bbox to label atbel
+        label_table[self.data_name].append(new_bbox)
+        new_bbox.target_idx = len(label_table[self.data_name]) - 1
+        # add to mod list
+        new_line = new_bbox.to_label_str()
+        mod = [self.data_name, new_bbox.target_idx, new_line, None]
+        modification_list.append(mod)
+        # update dscene
+        self.show()
+
+
+

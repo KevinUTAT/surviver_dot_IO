@@ -374,6 +374,9 @@ class Form(QObject):
                 # remove a target (a line)
                 if mod[2] == '':
                     del lines[mod[1]]
+                # new target
+                elif mod[3] is None:
+                    lines.append(mod[2] + '\n')
                 else:
                     lines[mod[1]] = mod[2] + '\n'
 
@@ -383,7 +386,22 @@ class Form(QObject):
 
 
     def show_mods(self):
-        self.info_msg(str(modification_list),\
+        table = ""
+        for mod in modification_list:
+            line = ""
+            if mod[1] == -1:
+                line += "RT: "
+            else:
+                if mod[2] == '':
+                    line += "RI: "
+                # new target
+                elif mod[3] is None:
+                    line += "NT: "
+                else:
+                    line += "MT: "
+            line += str(mod) + '\n'
+            table += line
+        self.info_msg(table,\
             "Chnage History")
 
 

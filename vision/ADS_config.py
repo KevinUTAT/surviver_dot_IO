@@ -14,4 +14,5 @@ label_table = {}
 # to delete a target, set new_data to ''
 # Old data is used to undo changes
 # to delete a image-label pair set target_idx to -1
+# to add a new target, set old_date to None
 modification_list = []

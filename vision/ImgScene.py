@@ -37,7 +37,7 @@ class ImgScene(QGraphicsScene):
             x = event.scenePos().x()
             y = event.scenePos().y()
             newBbox = BBox([x, y, 0, 0],
-                        [self.dscene.backgroundSize],
+                        self.dscene.backgroundSize,
                         0)
             newBbox.drew_in_scene(self, self.dscene, -1)
             newBbox.br.mouseMoveEvent(event, \
@@ -51,5 +51,8 @@ class ImgScene(QGraphicsScene):
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
-        self.mouseDown = False
-        self.targetCreated = False
+        if self.mouseDown:
+            self.mouseDown = False
+            self.targetCreated = False
+            self.newBboxes[-1].update()
+            self.dscene.record_new_target(self.newBboxes[-1])
