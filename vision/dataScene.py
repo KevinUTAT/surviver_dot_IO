@@ -33,6 +33,8 @@ class DataScene(object):
         self.data_name = data_name
         self.current_data_dir = current_data_dir
 
+        self.last_cls = 0
+
         self.img_dir = self.current_data_dir + IMG_FOLDER \
             + '/' + data_name + '.' + IMG_EXT
         self.label_dir = self.current_data_dir + LEBEL_FOLDER \
@@ -100,6 +102,7 @@ class DataScene(object):
             cur_bbox = label_table[self.data_name][target_idx]
             old_bbox = BBox(cur_bbox.xywh, cur_bbox.imgSizeWH, cur_bbox.cls)
             label_table[self.data_name][target_idx].cls = int(text)
+            self.last_cls = int(text)
             # log the change
             new_data = label_table[self.data_name][target_idx].to_label_str()
             # print(new_data)

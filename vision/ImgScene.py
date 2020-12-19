@@ -38,7 +38,7 @@ class ImgScene(QGraphicsScene):
             y = event.scenePos().y()
             newBbox = BBox([x, y, 0, 0],
                         self.dscene.backgroundSize,
-                        0)
+                        self.dscene.last_cls)
             newBbox.drew_in_scene(self, self.dscene, -1)
             newBbox.br.mouseMoveEvent(event, \
                 passed_by_scene=True)
