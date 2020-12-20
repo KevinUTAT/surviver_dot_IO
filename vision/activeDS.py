@@ -17,9 +17,9 @@ from PySide2.QtWidgets import (QApplication, QPushButton,
                             QCheckBox, QAction, QFileDialog, 
                             QMessageBox, QInputDialog, QListWidget, 
                             QListView, QGraphicsScene, QGraphicsView, 
-                            QProgressDialog)
+                            QProgressDialog, QShortcut)
 from PySide2.QtCore import QFile, QObject, QRectF, Qt
-from PySide2.QtGui import (QIcon, QPixmap, QImage, QCursor)
+from PySide2.QtGui import (QIcon, QPixmap, QImage, QCursor, QKeySequence)
 
 from PIL import Image
 import shutil
@@ -109,13 +109,17 @@ class Form(QObject):
 
         self.editButton_connected = False # make sure only connect once
 
-
         self.rmTargetButton.setEnabled(False)
         self.undoButton.setEnabled(False)
         self.rmTargetButton.clicked.connect(self.remove_target)
         self.targetList_modified = False
         self.undoButton.clicked.connect(self.undo_mod)
         self.deleteButton.clicked.connect(self.remove_img)
+
+        # shortcuts ====================================================
+        QShortcut(QKeySequence("Ctrl+R"), self.window).activated.\
+            connect(self.remove_target)
+
 
         self.window.show()
 
@@ -345,6 +349,11 @@ class Form(QObject):
             # else just restore old bbox
             if last_mod[2] == '':
                 label_table[data_name].insert(tar_idx, last_mod[3])
+            # to undo a new target:
+            # 1. remove from lable table
+            # 2. update
+            elif last_mod[3] is None:
+                del label_table[data_name][tar_idx]
             else:
                 label_table[data_name][tar_idx] = last_mod[3]
                 update = True

@@ -129,6 +129,7 @@ class DataScene(object):
         new_line = new_bbox.to_label_str()
         mod = [self.data_name, new_bbox.target_idx, new_line, None]
         modification_list.append(mod)
+        self.ui_form.check_undoable()
         # update dscene
         self.show()
 
