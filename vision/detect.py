@@ -192,11 +192,11 @@ def detect(opt, prediction, save_img=False, progress=None):
             img = img.unsqueeze(0)
 
         # update progress
-        if not progress:
-            frame_count += 1
-            progress.setValue(int(frame_count / len(dataset)))
-            if progress.wasCanceled():
-                    return
+        # if not progress:
+        #     frame_count += 1
+        #     progress.setValue(int(frame_count / len(dataset)))
+        #     if progress.wasCanceled():
+        #             return
 
         # Inference
         t1 = torch_utils.time_synchronized()

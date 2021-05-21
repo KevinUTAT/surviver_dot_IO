@@ -350,8 +350,6 @@ class Form(QObject):
             if last_mod[2] == '':
                 label_table[data_name].insert(tar_idx, last_mod[3])
             # to undo a new target:
-            # 1. remove from lable table
-            # 2. update
             elif last_mod[3] is None:
                 del label_table[data_name][tar_idx]
             else:
