@@ -3,7 +3,7 @@ import threading
 import queue
 import time
 import pyautogui
-from detect import *
+from detect import detect, tracking_list, tracking_list_cv
 
 
 
@@ -77,32 +77,54 @@ class Game_AI(threading.Thread):
 
 
 if __name__ == '__main__':
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
+    # parser.add_argument('--source', type=str, default='screen', help='source')  # file/folder, 0 for webcam ../Drone-Yolo/video/cuttingdata3.mp4
+    # parser.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
+    # parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')
+    # parser.add_argument('--conf-thres', type=float, default=0.4, help='object confidence threshold')
+    # parser.add_argument('--iou-thres', type=float, default=0.3, help='IOU threshold for NMS')
+    # parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    # parser.add_argument('--view-img', action='store_true', help='display results')
+    # parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
+    # parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --class 0, or --class 0 2 3')
+    # parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
+    # parser.add_argument('--augment', action='store_true', help='augmented inference')
+    # parser.add_argument('--update', action='store_true', help='update all models')
+    # parser.add_argument('--active', type=float, default=0, help='out put threshold, enable active learning ouput when set to non zero')
+    # parser.add_argument('--debug', type=bool, default=False, help='add more info in image overlay')
+    # opt = parser.parse_args()
+    # print(opt)
+
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
-    parser.add_argument('--source', type=str, default='screen', help='source')  # file/folder, 0 for webcam ../Drone-Yolo/video/cuttingdata3.mp4
-    parser.add_argument('--output', type=str, default='inference/output', help='output folder')  # output folder
+    parser.add_argument('--source', type=str, default='screen', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')
-    parser.add_argument('--conf-thres', type=float, default=0.4, help='object confidence threshold')
-    parser.add_argument('--iou-thres', type=float, default=0.3, help='IOU threshold for NMS')
+    parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
+    parser.add_argument('--iou-thres', type=float, default=0.45, help='IOU threshold for NMS')
+    parser.add_argument('--max-det', type=int, default=1000, help='maximum number of detections per image')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--view-img', action='store_true', help='display results')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
+    parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
+    parser.add_argument('--save-crop', action='store_true', help='save cropped prediction boxes')
+    parser.add_argument('--nosave', action='store_true', help='do not save images/videos')
     parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --class 0, or --class 0 2 3')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
     parser.add_argument('--update', action='store_true', help='update all models')
+    parser.add_argument('--project', default='runs/detect', help='save results to project/name')
+    parser.add_argument('--name', default='exp', help='save results to project/name')
+    parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
+    parser.add_argument('--line-thickness', default=3, type=int, help='bounding box thickness (pixels)')
+    parser.add_argument('--hide-labels', default=False, action='store_true', help='hide labels')
+    parser.add_argument('--hide-conf', default=False, action='store_true', help='hide confidences')
     parser.add_argument('--active', type=float, default=0, help='out put threshold, enable active learning ouput when set to non zero')
     parser.add_argument('--debug', type=bool, default=False, help='add more info in image overlay')
     opt = parser.parse_args()
     print(opt)
-
-    # with torch.no_grad():
-    #     if opt.update:  # update all models (to fix SourceChangeWarning)
-    #         for opt.weights in ['yolov5s.pt', 'yolov5m.pt', 'yolov5l.pt', 'yolov5x.pt', 'yolov3-spp.pt']:
-    #             detect()
-    #             strip_optimizer(opt.weights)
-    #     else:
-    #         detect()
+    # check_requirements(exclude=('tensorboard', 'pycocotools', 'thop'))
 
 
     trackings = queue.Queue()
@@ -113,7 +135,7 @@ if __name__ == '__main__':
     ai_thread.start()
     try:
         with torch.no_grad():
-            detect(opt=opt, save_img=False, prediction=trackings)
+            detect(opt=opt)
         program_terminated = True
         ai_thread.join()
     except:
