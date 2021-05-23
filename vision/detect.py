@@ -22,9 +22,9 @@ from sort import *
 active_output_dir = "active/images/"
 active_label_dir = "active/labels/"
 
-global tracking_list
+# global tracking_list
 tracking_list = {}
-global tracking_list_cv
+# global tracking_list_cv
 tracking_list_cv = threading.Condition()
 
 
@@ -264,6 +264,7 @@ def detect(opt):
                 # global tracking_list
                 # global tracking_list_cv
                 tracking_list_cv.acquire()
+                # print("Lock acquired")
                 # tracking_list.clear()
                 # populate the tracking list
                 active_frame = False
@@ -349,6 +350,7 @@ def detect(opt):
                     det_idx += 1
                 tracking_list_cv.notify_all()
                 tracking_list_cv.release()
+                # print("Lock released")
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({t2 - t1:.3f}s)')

@@ -3,6 +3,7 @@ import threading
 import queue
 import time
 import pyautogui
+import torch
 from detect import detect, tracking_list, tracking_list_cv
 
 
@@ -45,7 +46,7 @@ class Game_AI(threading.Thread):
         shots_fired = False
         while not program_terminated:
             tracking_list_cv.acquire()
-            if tracking_list and not shots_fired:       # if not empty
+            if (len(tracking_list) > 0) and not shots_fired:       # if not empty
                 # print(tracking_list)
                 for target in tracking_list.values():
                     center_x = target.x
