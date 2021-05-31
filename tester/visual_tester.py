@@ -7,12 +7,15 @@ from PySide2 import QtGui
 from PySide2 import QtWidgets
 from PySide2 import QtXml
 from PySide2.QtMultimedia import QMediaContent, QMediaPlayer
-from PySide2.QtMultimediaWidgets import QVideoWidget
+from PySide2.QtMultimediaWidgets import QGraphicsVideoItem
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import (QApplication, QPushButton, QAction,
-                            QFileDialog, QLabel, QGridLayout, QShortcut)
-from PySide2.QtCore import QFile, QObject, QRectF, Qt, QUrl
+                            QFileDialog, QLabel, QGridLayout, QShortcut,
+                            QGraphicsView)
+from PySide2.QtCore import QFile, QObject, QRectF, Qt, QUrl, QPointF
 from PySide2.QtGui import (QIcon, QPixmap, QImage, QCursor, QKeySequence)
+
+from player_scene import PlayerScene
 
 # Main window for the visual tester 
 class VTester(QObject):
@@ -27,13 +30,19 @@ class VTester(QObject):
         ui_file.close()
 
         # setup the video player
-        self.player_widget = QVideoWidget()
+        # a graphic scene as base
+        self.playerScene = PlayerScene(self)
+        self.playerView = self.window.findChild(QGraphicsView, 'playerView')
+        self.playerView.setScene(self.playerScene)
+        self.playerView.setCursor(QCursor(PySide2.QtCore.Qt.CrossCursor))
+        self.playerScene.link_view(self.playerView)
+        # frontend of video player
+        self.playerItem = QGraphicsVideoItem()
+        self.playerScene.addItem(self.playerItem)
+        self.playerItem.setAspectRatioMode(Qt.KeepAspectRatio)
+        # backend of a video player
         self.player = QMediaPlayer(None, QMediaPlayer.VideoSurface)
-
-        self.window.findChild(QGridLayout, "gridLayout").\
-            addWidget(self.player_widget, 0, 0)
-
-        self.player.setVideoOutput(self.player_widget)
+        self.player.setVideoOutput(self.playerItem)
 
         # open video action
         self.window.findChild(QAction, "actionOpen_video").\
@@ -47,6 +56,7 @@ class VTester(QObject):
 
     def show(self):
         self.window.show()
+        self.playerView.show()
 
 
     def load_video_from_dialog(self):
@@ -56,6 +66,7 @@ class VTester(QObject):
             self.player.setMedia(
                 QMediaContent(QUrl.fromLocalFile(file_dir)))
             self.player.play()
+            self.playerScene.fit_player(self.playerItem)
 
 
     # toggleing between paly and pause

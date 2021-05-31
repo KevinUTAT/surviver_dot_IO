@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QGraphicsView" name="playerView"/>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
