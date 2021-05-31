@@ -10,7 +10,7 @@ from PySide2.QtMultimedia import QMediaContent, QMediaPlayer
 from PySide2.QtMultimediaWidgets import QVideoWidget
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import (QApplication, QPushButton, QAction,
-                            QFileDialog, QLabel, QGridLayout)
+                            QFileDialog, QLabel, QGridLayout, QShortcut)
 from PySide2.QtCore import QFile, QObject, QRectF, Qt, QUrl
 from PySide2.QtGui import (QIcon, QPixmap, QImage, QCursor, QKeySequence)
 
@@ -39,6 +39,12 @@ class VTester(QObject):
         self.window.findChild(QAction, "actionOpen_video").\
             triggered.connect(self.load_video_from_dialog)
 
+        # Play control through keyboard
+        # space key for paly/pause
+        QShortcut(QKeySequence("Space"), self.window).activated.\
+            connect(self.play_pause)
+
+
     def show(self):
         self.window.show()
 
@@ -49,6 +55,14 @@ class VTester(QObject):
         if file_dir != '':
             self.player.setMedia(
                 QMediaContent(QUrl.fromLocalFile(file_dir)))
+            self.player.play()
+
+
+    # toggleing between paly and pause
+    def play_pause(self):
+        if self.player.state() == QMediaPlayer.PlayingState:
+            self.player.pause()
+        else:
             self.player.play()
 
 
