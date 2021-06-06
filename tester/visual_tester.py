@@ -17,6 +17,7 @@ from PySide2.QtGui import (QIcon, QPixmap, QImage, QCursor, QKeySequence)
 
 from player_scene import PlayerScene
 
+
 # Main window for the visual tester 
 class VTester(QObject):
 
@@ -36,6 +37,7 @@ class VTester(QObject):
         self.playerView.setScene(self.playerScene)
         self.playerView.setCursor(QCursor(PySide2.QtCore.Qt.CrossCursor))
         self.playerScene.link_view(self.playerView)
+        self.playerView.setMouseTracking(True)
         # frontend of video player
         self.playerItem = QGraphicsVideoItem()
         self.playerScene.addItem(self.playerItem)
