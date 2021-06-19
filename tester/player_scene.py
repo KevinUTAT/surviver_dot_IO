@@ -18,6 +18,7 @@ class PlayerScene(QGraphicsScene):
         super().__init__(parent)
         self.max_width = 3840
         self.max_height = 2160
+        self.red_pen = QPen(Qt.red)
         
 
     def link_view(self, view):
@@ -35,7 +36,17 @@ class PlayerScene(QGraphicsScene):
         self.draw_cross(event.scenePos().x(), event.scenePos().y())
 
 
-    def draw_cross(self, x, y):
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        self.draw_cross(event.scenePos().x(), event.scenePos().y(), colour="red")
+
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        self.draw_cross(event.scenePos().x(), event.scenePos().y(), colour="black")
+
+
+    def draw_cross(self, x, y, colour="black"):
         if (x > self.max_width) or (x < 0) \
             or (y > self.max_height) or (y < 0):
             return
@@ -46,5 +57,13 @@ class PlayerScene(QGraphicsScene):
             self.cross_h = self.addLine(0, y, self.max_width, y, self.cross_pen)
             self.cross_v = self.addLine(x, 0, x, self.max_height, self.cross_pen)
         else:
+            
             self.cross_h.setLine(0, y, self.max_width, y)
             self.cross_v.setLine(x, 0, x, self.max_height)
+
+            if colour == "black": 
+                self.cross_h.setPen(self.cross_pen)
+                self.cross_v.setPen(self.cross_pen)
+            elif colour == "red":
+                self.cross_h.setPen(self.red_pen)
+                self.cross_v.setPen(self.red_pen)
