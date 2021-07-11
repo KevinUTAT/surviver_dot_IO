@@ -303,6 +303,8 @@ def detect(opt):
                             cv2.imwrite(out_dir_name, im0)
                     det_idx += 1
                 # print(tracking_list)
+                tracking_list_cv.notify_all()
+                tracking_list_cv.release()
 
                 # output ALL the targets for a active frame
                 if active_frame:
@@ -348,8 +350,8 @@ def detect(opt):
                         if opt.save_crop:
                             save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
                     det_idx += 1
-                tracking_list_cv.notify_all()
-                tracking_list_cv.release()
+                # tracking_list_cv.notify_all()
+                # tracking_list_cv.release()
                 # print("Lock released")
 
             # Print time (inference + NMS)
@@ -388,7 +390,7 @@ def detect(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='weights/bestm.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='videos/surviv.io2020-11-06_22-41-45.mp4', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')

@@ -49,6 +49,7 @@ class Game_AI(threading.Thread):
             if (len(tracking_list) > 0) and not shots_fired:       # if not empty
                 # print(tracking_list)
                 for target in tracking_list.values():
+
                     center_x = target.x
                     center_y = target.y
                     # Check the target to be yourself, if it is, move on to the next target
@@ -64,7 +65,9 @@ class Game_AI(threading.Thread):
                         pyautogui.mouseUp()
                         # pyautogui.moveTo(x=center_x, y=center_y)
                         print("Firing at ", center_x, center_y)
+                        # tracking_list.clear()
                         break
+
                 shots_fired = True
                 # tracking_list.clear()
             else:
