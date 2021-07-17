@@ -18,7 +18,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 from sort import *
-from elements import Player
+from elements import Player, Tree
 
 active_output_dir = "active/images/"
 active_label_dir = "active/labels/"
@@ -27,6 +27,10 @@ active_label_dir = "active/labels/"
 tracking_list = {}
 # global tracking_list_cv
 tracking_list_cv = threading.Condition()
+
+# list of trees in a frame
+tree_list = []
+tree_list_cv = threading.Condition()
 
 
 
@@ -119,6 +123,10 @@ def detect(opt):
         clean_traking_list()
         age_traking_list()
 
+        global tree_list
+        global tree_list_cv
+        tree_list = []
+
         # Process detections
         for i, det in enumerate(pred):  # detections per image
             if webcam or screen_cap:  # batch_size >= 1
@@ -147,7 +155,7 @@ def detect(opt):
                     for tracked_obj in tracked_objs:
                         x_match = abs(tracked_obj[0] - xyxy[0]) < 3
                         y_match = abs(tracked_obj[1] - xyxy[1]) < 3
-                        if x_match and y_match:
+                        if x_match and y_match and (int(cls) == 0):
                             ordered_tracked_objs.append(tracked_obj)
                             match_found = True
                             break
@@ -179,13 +187,16 @@ def detect(opt):
                     if len(ordered_tracked_objs) > det_idx:
                         current_track_id = ordered_tracked_objs[det_idx][4]
                         # create a new player object if its tracking id is new
-                        if (current_track_id not in tracking_list):
+                        if (current_track_id not in tracking_list) and (int(cls) == 0):
                             new_player = Player(current_track_id)
                             new_player.update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf, time_stemp=t2)
                             tracking_list[current_track_id] = new_player
                         # if its a existing id, update current object
-                        else:
+                        elif int(cls) == 0:
                             tracking_list[current_track_id].update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf, time_stemp=t2)
+                        # else:
+                        #     print("Unknown Class: " + str(cls))
+
 
                     # On completly different note, while we are going through det,
                     # we are going to out put unanotated img for training
@@ -207,6 +218,14 @@ def detect(opt):
                                 + '_' + str(int(float(conf)*100))
                             out_dir_name = active_output_dir + new_name + '.png'
                             cv2.imwrite(out_dir_name, im0)
+
+                    # record all trees
+                    if int(cls) == 2:
+                        new_tree = Tree()
+                        new_tree.update(xyxy[0], xyxy[1], xyxy[2], xyxy[3], conf)
+                        new_tree.update_r()
+                        tree_list.append(new_tree)
+
                     det_idx += 1
                 # print(tracking_list)
                 tracking_list_cv.notify_all()
@@ -244,7 +263,7 @@ def detect(opt):
                         label = None if opt.hide_labels else (names[c] if opt.hide_conf else f'{names[c]} {conf:.2f}')
                         if len(ordered_tracked_objs) > det_idx:
                             current_track_id = ordered_tracked_objs[det_idx][4]
-                            if opt.debug:
+                            if opt.debug and (current_track_id != -1):
                                 plot_one_box(xyxy, im0, label=label, track_id=current_track_id, \
                                     color=colors(c, True), line_thickness=1, \
                                         speed=tracking_list[current_track_id].speed, \

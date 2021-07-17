@@ -28,6 +28,26 @@ class Element(object):
         return self.__str__()
 
 
+    def update(self, left, top, right, bottom, conf):
+        self.x = int((left + right)/2)
+        self.y = int((top + bottom)/2)
+        self.w = int(abs(right - left))
+        self.h = int(abs(bottom - top))
+
+        self.conf = conf
+
+
+    def update_xywh(self, xywh, conf):
+        self.x = xywh[0]
+        self.y = xywh[1]
+        self.w = xywh[2]
+        self.h = xywh[3]
+
+        self.conf = conf
+
+
+    def update_r(self):
+        self.r = (self.w + self.h) / 4
 
 
 # for players that can be tracked using SORT =================================
@@ -38,6 +58,7 @@ class Player(Element):
         super().__init__()
         self.tracking_id = tracking_id
         
+        # timestemp of last update
         self.time = time.time()
         self.speed = 0
         # x, y components of velocity
@@ -59,6 +80,7 @@ class Player(Element):
         self.obsolete = 0
 
 
+    # overloaded to calculate velocity as well
     def update(self, left, top, right, bottom, conf, time_stemp=0):
         self.x_prev = self.x
         self.y_prev = self.y
