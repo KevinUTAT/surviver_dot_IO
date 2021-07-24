@@ -456,3 +456,19 @@ def plot_results(start=0, stop=0, bucket='', id=(), labels=(), save_dir=''):
 
     ax[1].legend()
     fig.savefig(Path(save_dir) / 'results.png', dpi=200)
+
+
+def plot_debug_info(im, tracking_list_ref, tree_list_ref):
+    font = cv2.FONT_HERSHEY_PLAIN
+    fontScale = 1
+    color_player = (255, 0, 0)
+    color_tree = (0, 255, 0)
+    thickness = 1
+    # add tracking list
+    for i, player in enumerate(tracking_list_ref.values()):
+        im = cv2.putText(im, str(player), (10, i*20+20), font, 
+                   fontScale, color_player, thickness, cv2.LINE_AA)
+    # add tree list
+    for i, tree in enumerate(tree_list_ref):
+        im = cv2.putText(im, str(tree), (420, i*20+20), font, 
+                   fontScale, color_tree, thickness, cv2.LINE_AA)

@@ -15,7 +15,7 @@ from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
 from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
     scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
-from utils.plots import colors, plot_one_box
+from utils.plots import colors, plot_one_box, plot_debug_info
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 from sort import *
 from elements import Player, Tree
@@ -278,6 +278,10 @@ def detect(opt):
                 # tracking_list_cv.notify_all()
                 # tracking_list_cv.release()
                 # print("Lock released")
+
+            # print debug info to each frame
+            if opt.debug:
+                plot_debug_info(im0, tracking_list, tree_list)
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({t2 - t1:.3f}s)')
