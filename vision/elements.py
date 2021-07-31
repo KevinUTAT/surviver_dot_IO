@@ -20,6 +20,7 @@ class Element(object):
     def __str__(self):
         position_str = '(' + str(self.x) + ', ' + str(self.y) + ')'
         size_str = '(' + str(self.w) + 'x' + str(self.h) + ')'
+        size_str = f"({self.w}x{self.h}, r={self.r})"
         return position_str + ' : ' + size_str \
             + ' conf:' + str(int(float(self.conf)*100)) + '\n'
     

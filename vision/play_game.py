@@ -4,6 +4,8 @@ import queue
 import time
 import pyautogui
 import torch
+import numpy
+import math
 from detect import detect, tracking_list, tracking_list_cv
 
 
@@ -78,6 +80,35 @@ class Game_AI(threading.Thread):
             tracking_list_cv.release()
             # else:
             #     time.sleep(0.005)
+
+
+# if there is a clear shot to a target, giving a circler obstacle 
+# https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+def circle_in_between(player_x, player_y, target_x, target_y, \
+    circle_x, circle_y, circle_r):
+    player = numpy.array([player_x, player_y])
+    target = numpy.array([target_x, target_y])
+    circle = numpy.array([circle_x, circle_y])
+
+    d = target - player
+    f = player - circle
+    
+    a = d.dot(d)
+    b = 2 * f.dot(d)
+    c = f.dot(f) - circle_r * circle_r
+
+    discriminant = b*b - 4 * a * c
+    if discriminant < 0:
+        return False
+    discriminant = math.sqrt(discriminant)
+    t1 = (-b - discriminant) / (2 * a)
+    t2 = (-b + discriminant) / (2 * a)
+
+    if t1 >= 0 and t1 <= 1:
+        return True
+    if t2 >= 0 and t2 <= 1:
+        return True
+    return False
 
 
 if __name__ == '__main__':
