@@ -14,6 +14,10 @@ https://github.com/ultralytics/yolov5
 SORT is used for target tracking, and its original repo is here: \
 https://github.com/abewley/sort
 ## Change log
+### 2021-8-7:
+**Tree** as a detection class is finally added. \
+When deciding which target to shot, the program will now skip the target that don't have a clear shot due to tree in between. \
+A visual tester is also added under */tester*. This program can replace a pre recorded game capture and visualize your mouse actions.
 ### 2021-5-23:
 **Active Data set has since move to a separated repo [here](https://github.com/KevinUTAT/active_data_set)** \
 This update are just some house cleaning, no feature updated. Some cleaning is needed for obstacles avoidance feature in the near future.
@@ -81,8 +85,8 @@ more agrassive learning rate because our target is going to be \
 man made carton objects.
 
 ## Download pre-trained weights
-Weights trained on 500+ images, Not the best yet, but surely usable:
-https://drive.google.com/file/d/1OkCWemCXeNqlwOe54uWinOopuPGHRZKD/view?usp=sharing
+Weights trained on 500+ images, Not the best yet, but surely usable: \
+https://drive.google.com/file/d/1eh_syn9H7KijcB6zEY3bO020aTSdEgpX/view?usp=sharing \
 Put it under weights/
 
 ## Instruction

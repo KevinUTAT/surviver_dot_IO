@@ -6,7 +6,7 @@ import pyautogui
 import torch
 import numpy
 import math
-from detect import detect, tracking_list, tracking_list_cv
+from detect import detect, tracking_list, tracking_list_cv, tree_list
 
 
 
@@ -39,6 +39,8 @@ class Game_AI(threading.Thread):
         threading.Thread.__init__(self)
         self.name = name
         self.center_screen = (pyautogui.size()[0]/2 , pyautogui.size()[1]/2)
+        # position of the player of its self. Init as center screen
+        self.self_player_pos = self.center_screen
         pyautogui.FAILSAFE = False
 
     def run(self):
@@ -57,7 +59,12 @@ class Game_AI(threading.Thread):
                     # Check the target to be yourself, if it is, move on to the next target
                     if (abs(self.center_screen[0] - center_x) + abs(self.center_screen[1] - center_y)) > 50 \
                         and target.conf > 0.3 and target.tracking_id != -1: 
-                        # usin deflection
+                        # check for obstacle in between
+                        if check_obstacle_tree(self.self_player_pos[0], self.self_player_pos[1], \
+                            center_x, center_y):
+                            print("Abort due to tree")
+                            continue
+                        # leading the target
                         center_x, center_y = target.position_projection(0.2)
                         pyautogui.mouseDown(x=center_x, y=center_y)
                         time.sleep(0.005)
@@ -111,6 +118,14 @@ def circle_in_between(player_x, player_y, target_x, target_y, \
     return False
 
 
+def check_obstacle_tree(player_x, player_y, target_x, target_y):
+    for tree in tree_list:
+        if circle_in_between(player_x, player_y, target_x, target_y, \
+            tree.x, tree.y, tree.r):
+            return True
+    return False
+
+
 if __name__ == '__main__':
     # parser = argparse.ArgumentParser()
     # parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
@@ -133,7 +148,7 @@ if __name__ == '__main__':
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='weights/bests.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='weights/bestm.pt', help='model.pt path(s)')
     parser.add_argument('--source', type=str, default='screen', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=1024, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
