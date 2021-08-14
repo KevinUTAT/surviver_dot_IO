@@ -66,6 +66,7 @@ class Game_AI(threading.Thread):
                             continue
                         # leading the target
                         center_x, center_y = target.position_projection(0.2)
+                        t_trig = time.time()
                         pyautogui.mouseDown(x=center_x, y=center_y)
                         time.sleep(0.005)
                         pyautogui.mouseUp()
@@ -73,7 +74,7 @@ class Game_AI(threading.Thread):
                         time.sleep(0.005)
                         pyautogui.mouseUp()
                         # pyautogui.moveTo(x=center_x, y=center_y)
-                        print("Firing at ", center_x, center_y)
+                        print("Firing at ", center_x, center_y, "Detect - Trigger time: ", t_trig - target.time)
                         # tracking_list.clear()
                         break
 
