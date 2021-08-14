@@ -175,12 +175,13 @@ def detect(opt):
 
                 # output results
                 targets_out = []
-                # global tracking_list
-                # global tracking_list_cv
-                tracking_list_cv.acquire()
+
+                # None blocking so detection flaw wont be effected
+                # if the list are currently used, just don't up date it
+                if not tracking_list_cv.acquire(blocking=False):
+                    continue
                 # print("Lock acquired")
-                # tracking_list.clear()
-                # populate the tracking list
+
                 active_frame = False
                 det_idx = 0
                 for *xyxy, conf, cls in reversed(det):
