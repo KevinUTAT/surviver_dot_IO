@@ -59,6 +59,9 @@ def detect(opt):
     active_learn = opt.active > 0.05
     active_learn_thres = opt.active
 
+    if screen_cap and not opt.record:
+        save_img = False
+
     # Directories
     save_dir = increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -344,6 +347,7 @@ if __name__ == '__main__':
     parser.add_argument('--hide-conf', default=False, action='store_true', help='hide confidences')
     parser.add_argument('--active', type=float, default=0, help='out put threshold, enable active learning ouput when set to non zero')
     parser.add_argument('--debug', type=bool, default=False, help='add more info in image overlay')
+    parser.add_argument('--record', action='store_true', help='Record screen cap')
     opt = parser.parse_args()
     print(opt)
     # check_requirements(exclude=('tensorboard', 'pycocotools', 'thop'))

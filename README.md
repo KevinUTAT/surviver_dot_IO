@@ -14,6 +14,15 @@ https://github.com/ultralytics/yolov5
 SORT is used for target tracking, and its original repo is here: \
 https://github.com/abewley/sort
 ## Change log
+### 2021-8-21:
+This update is also some house cleaning, but enable some important features:
+- Optimized syncing between detection thread and AI thread. Dramatically reduce detection-to-trigger time (about 0.05s on my laptop) in complex scene.
+- Fix the video recorder. Now not only you can save video file in detection mode (run only detect.py) but also playing game with screen cap:
+```
+python play_game.py --record
+```
+  The ```--debug``` option still works here, too. The recoding is faster than real time for now.
+
 ### 2021-8-7:
 **Tree** as a detection class is finally added. \
 When deciding which target to shot, the program will now skip the target that don't have a clear shot due to tree in between. \
