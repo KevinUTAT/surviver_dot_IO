@@ -10,7 +10,7 @@ Pillow @ file:///C:/ci/pillow_1594298230227/work
 protobuf==3.12.3
 PyAutoGUI==0.9.48
 pyOpenSSL @ file:///tmp/build/80754af9/pyopenssl_1594392929924/work
-pywin32==227
+pywin32==301
 PyYAML==5.4
 scipy @ file:///C:/ci/scipy_1592916963468/work
 six==1.15.0
