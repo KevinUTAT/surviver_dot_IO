@@ -51,32 +51,20 @@ class Game_AI(threading.Thread):
         while not program_terminated:
             tracking_list_cv.acquire()
             if (len(tracking_list) > 0) and not shots_fired:       # if not empty
-                # print(tracking_list)
-                for target in tracking_list.values():
-
-                    center_x = target.x
-                    center_y = target.y
-                    # Check the target to be yourself, if it is, move on to the next target
-                    if (abs(self.center_screen[0] - center_x) + abs(self.center_screen[1] - center_y)) > 50 \
-                        and target.conf > 0.3 and target.tracking_id != -1: 
-                        # check for obstacle in between
-                        if check_obstacle_tree(self.self_player_pos[0], self.self_player_pos[1], \
-                            center_x, center_y):
-                            print("Abort due to tree")
-                            continue
-                        # leading the target
-                        center_x, center_y = target.position_projection(0.2)
-                        t_trig = time.time()
-                        pyautogui.mouseDown(x=center_x, y=center_y)
-                        time.sleep(0.005)
-                        pyautogui.mouseUp()
-                        pyautogui.mouseDown(x=center_x, y=center_y)
-                        time.sleep(0.005)
-                        pyautogui.mouseUp()
-                        # pyautogui.moveTo(x=center_x, y=center_y)
-                        print("Firing at ", center_x, center_y, "Detect - Trigger time: ", t_trig - target.time)
-                        # tracking_list.clear()
-                        break
+                target = find_best_target(self)
+                if target is not None:
+                    # leading the target
+                    center_x, center_y = target.position_projection(0.2)
+                    t_trig = time.time()
+                    pyautogui.mouseDown(x=center_x, y=center_y)
+                    time.sleep(0.005)
+                    pyautogui.mouseUp()
+                    pyautogui.mouseDown(x=center_x, y=center_y)
+                    time.sleep(0.005)
+                    pyautogui.mouseUp()
+                    # pyautogui.moveTo(x=center_x, y=center_y)
+                    print("Firing at ", center_x, center_y, "Detect - Trigger time: ", t_trig - target.time)
+                    # tracking_list.clear()
 
                 shots_fired = True
                 # tracking_list.clear()
@@ -88,6 +76,27 @@ class Game_AI(threading.Thread):
             tracking_list_cv.release()
             # else:
             #     time.sleep(0.005)
+
+
+def find_best_target(ai_thread_obj):
+    best_target = None
+    closest_distance = 99999
+    for target in tracking_list.values():
+        center_x = target.x
+        center_y = target.y
+        # Check the target to be yourself, if it is, move on to the next target
+        distance_2_center = abs(ai_thread_obj.center_screen[0] - center_x) + abs(ai_thread_obj.center_screen[1] - center_y)
+        if distance_2_center > 50 \
+            and target.conf > 0.5 and target.tracking_id != -1: 
+            # check for obstacle in between
+            if check_obstacle_tree(ai_thread_obj.self_player_pos[0], ai_thread_obj.self_player_pos[1], \
+                center_x, center_y):
+                print("Abort due to tree")
+                continue
+            if distance_2_center < closest_distance:
+                best_target = target
+    return best_target
+
 
 
 # if there is a clear shot to a target, giving a circler obstacle 
@@ -120,6 +129,7 @@ def circle_in_between(player_x, player_y, target_x, target_y, \
 
 
 def check_obstacle_tree(player_x, player_y, target_x, target_y):
+    global tree_list
     for tree in tree_list:
         if circle_in_between(player_x, player_y, target_x, target_y, \
             tree.x, tree.y, tree.r):

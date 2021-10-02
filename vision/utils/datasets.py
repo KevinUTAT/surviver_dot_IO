@@ -327,7 +327,7 @@ class LoadStreams:  # multiple IP or RTSP cameras
                 img = Image.frombytes("RGB", (cap.width, cap.height), cap.rgb)
                 frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
                 self.imgs[index] = frame
-                time.sleep(0.01)
+                # time.sleep(0.005)
         else:
             n = 0
             while cap.isOpened():

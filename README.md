@@ -13,7 +13,14 @@ https://github.com/ultralytics/yolov5
 
 SORT is used for target tracking, and its original repo is here: \
 https://github.com/abewley/sort
+
+## Quick Note:
+If you are just looking for a quick way to win the game, this project might disappoints you. \
+It will take some effect to get this program running. \
+From my testing, it pretty much requires a CUDA device (Nvidia GPU) to run at a reasonable delay, and it also hogs your CPU quite a bit.
 ## Change log
+### 2021-10-02:
+Add target selection. When there are multiple potential targets (not blocked by obstacles), firing the closest one.
 ### 2021-8-21:
 This update is also some house cleaning, but enable some important features:
 - Optimized syncing between detection thread and AI thread. Dramatically reduce detection-to-trigger time (about 0.05s on my laptop) in complex scene.
