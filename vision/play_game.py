@@ -56,12 +56,16 @@ class Game_AI(threading.Thread):
                     # leading the target
                     center_x, center_y = target.position_projection(0.2)
                     t_trig = time.time()
-                    pyautogui.mouseDown(x=center_x, y=center_y)
-                    time.sleep(0.005)
-                    pyautogui.mouseUp()
-                    pyautogui.mouseDown(x=center_x, y=center_y)
-                    time.sleep(0.005)
-                    pyautogui.mouseUp()
+                    # pyautogui.mouseDown(x=center_x, y=center_y)
+                    # time.sleep(0.005)
+                    # pyautogui.mouseUp()
+                    # pyautogui.mouseDown(x=center_x, y=center_y)
+                    # time.sleep(0.005)
+                    # pyautogui.mouseUp()
+                    # pyautogui.mouseDown(x=center_x, y=center_y)
+                    # time.sleep(0.005)
+                    # pyautogui.mouseUp()
+                    threading.Thread(target=trippe_tap, args=(center_x, center_y)).start()
                     # pyautogui.moveTo(x=center_x, y=center_y)
                     print("Firing at ", center_x, center_y, "Detect - Trigger time: ", t_trig - target.time)
                     # tracking_list.clear()
@@ -79,6 +83,7 @@ class Game_AI(threading.Thread):
 
 
 def find_best_target(ai_thread_obj):
+    global tracking_list
     best_target = None
     closest_distance = 99999
     for target in tracking_list.values():
@@ -135,6 +140,19 @@ def check_obstacle_tree(player_x, player_y, target_x, target_y):
             tree.x, tree.y, tree.r):
             return True
     return False
+
+
+# 3 tap firing
+def trippe_tap(x, y):
+    pyautogui.mouseDown(x=x, y=y)
+    time.sleep(0.005)
+    pyautogui.mouseUp()
+    pyautogui.mouseDown(x=x, y=y)
+    time.sleep(0.005)
+    pyautogui.mouseUp()
+    pyautogui.mouseDown(x=x, y=y)
+    time.sleep(0.005)
+    pyautogui.mouseUp()
 
 
 if __name__ == '__main__':
