@@ -6,7 +6,9 @@ import pyautogui
 import torch
 import numpy
 import math
+import copy
 from detect import detect, tracking_list, tracking_list_cv, tree_list
+from elements import Player
 
 
 
@@ -48,26 +50,16 @@ class Game_AI(threading.Thread):
         global tracking_list_cv
         global program_terminated
         shots_fired = False
+        trigger_timer = time.time()
         while not program_terminated:
             tracking_list_cv.acquire()
             if (len(tracking_list) > 0) and not shots_fired:       # if not empty
                 target = find_best_target(self)
                 if target is not None:
                     # leading the target
-                    center_x, center_y = target.position_projection(0.2)
-                    t_trig = time.time()
-                    # pyautogui.mouseDown(x=center_x, y=center_y)
-                    # time.sleep(0.005)
-                    # pyautogui.mouseUp()
-                    # pyautogui.mouseDown(x=center_x, y=center_y)
-                    # time.sleep(0.005)
-                    # pyautogui.mouseUp()
-                    # pyautogui.mouseDown(x=center_x, y=center_y)
-                    # time.sleep(0.005)
-                    # pyautogui.mouseUp()
-                    threading.Thread(target=trippe_tap, args=(center_x, center_y)).start()
+                    # center_x, center_y = target.position_projection(0.2)
+                    threading.Thread(target=trippe_tap, args=(copy.copy(target), trigger_timer)).start()
                     # pyautogui.moveTo(x=center_x, y=center_y)
-                    print("Firing at ", center_x, center_y, "Detect - Trigger time: ", t_trig - target.time)
                     # tracking_list.clear()
 
                 shots_fired = True
@@ -143,16 +135,24 @@ def check_obstacle_tree(player_x, player_y, target_x, target_y):
 
 
 # 3 tap firing
-def trippe_tap(x, y):
+def trippe_tap(target, trigger_timer):
+    print("Start firing")
+    if time.time() - trigger_timer < 0.5:
+        return
+    trigger_timer = time.time()
+    x, y = target.position_projection(0.3)
     pyautogui.mouseDown(x=x, y=y)
-    time.sleep(0.005)
+    time.sleep(0.002)
     pyautogui.mouseUp()
+    x, y = target.position_projection(0.4)
     pyautogui.mouseDown(x=x, y=y)
-    time.sleep(0.005)
+    time.sleep(0.002)
     pyautogui.mouseUp()
+    x, y = target.position_projection(0.5)
     pyautogui.mouseDown(x=x, y=y)
-    time.sleep(0.005)
+    time.sleep(0.002)
     pyautogui.mouseUp()
+    print("Firing at ", x, y, "Detect-Trigger time: ", trigger_timer - target.time, "Firing time ", time.time() - trigger_timer)
 
 
 if __name__ == '__main__':
